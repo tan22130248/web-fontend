@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #d4711e;
+  --brand-dark:    #7a3516;
+  --cream:         #fdf8f2;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--cream);
+  color: #1a0f00;
+}
+
+/* Smooth slide animations */
+.slide-in-right {
+  animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.slide-in-left {
+  animation: slideInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* OTP input */
+.otp-input {
+  width: 44px;
+  height: 44px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: 1.5px solid #e49040;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.otp-input:focus {
+  border-color: #d4711e;
+  box-shadow: 0 0 0 3px rgba(212,113,30,0.15);
+}
+
+/* Social btn */
+.social-btn {
+  @apply flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-brand-200 bg-white hover:bg-brand-50 transition-all duration-200 text-sm font-medium text-dark;
+}
+
+/* Primary btn */
+.btn-primary {
+  @apply w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold tracking-wide transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+/* Input field */
+.form-input {
+  @apply w-full px-4 py-3 rounded-xl border border-brand-200 bg-white focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all duration-200 text-sm placeholder-brand-300;
+}
