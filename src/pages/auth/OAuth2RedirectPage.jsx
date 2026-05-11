@@ -19,7 +19,6 @@ export default function OAuth2RedirectPage() {
     }
 
     if (token) {
-      // Decode user info from JWT payload (base64)
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         const user = {
@@ -30,7 +29,12 @@ export default function OAuth2RedirectPage() {
         };
         login(user, token);
         toast.success('Đăng nhập thành công!');
-        navigate('/home', { replace: true });
+        
+        if (user.role === 'admin') {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate('/profile', { replace: true });
+        }
       } catch {
         toast.error('Phiên đăng nhập không hợp lệ');
         navigate('/auth', { replace: true });

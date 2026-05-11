@@ -24,7 +24,12 @@ export default function LoginForm({ onSwitch }) {
       const res = await authService.login(form);
       login(res.data.user, res.data.token);
       toast.success('Đăng nhập thành công!');
-      navigate('/home');
+      
+      if (res.data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/profile');
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Đăng nhập thất bại');
     } finally {

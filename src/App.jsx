@@ -5,9 +5,12 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import RoleBasedRoute from './components/common/RoleBasedRoute';
 import AuthPage from './pages/auth/AuthPage';
 import OAuth2RedirectPage from './pages/auth/OAuth2RedirectPage';
 import HomePage from './pages/home/HomePage';
+import ProfilePage from './pages/profile';
+import AdminPage from './pages/admin';
 
 export default function App() {
   return (
@@ -16,14 +19,35 @@ export default function App() {
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
+          
           <Route
             path="/home"
             element={
-              <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['buyer', 'seller']}>
                 <HomePage />
-              </ProtectedRoute>
+              </RoleBasedRoute>
             }
           />
+          
+          <Route
+            path="/profile"
+            element={
+              <RoleBasedRoute allowedRoles={['buyer', 'seller']}>
+                <ProfilePage />
+              </RoleBasedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin"
+            element={
+              <RoleBasedRoute allowedRoles={['admin']}>
+                <AdminPage />
+              </RoleBasedRoute>
+            }
+          />
+          
+          <Route path="/" element={<Navigate to="/auth" replace />} />
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
       </BrowserRouter>
