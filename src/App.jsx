@@ -62,7 +62,7 @@ export default function App() {
         draggable
         pauseOnHover
         theme="light"
-        toastStyle={{ fontFamily: 'DM Sans, sans-serif' }}
+        toastStyle={{ fontFamily: 'Be Vietnam Pro, sans-serif' }}
       />
     </AuthProvider>
   );
