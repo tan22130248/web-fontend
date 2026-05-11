@@ -20,8 +20,8 @@ module.exports = {
         dark:  '#1a0f00',
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        body:    ['"DM Sans"', 'sans-serif'],
+        display: ['"Be Vietnam Pro"', 'sans-serif'],
+        body:    ['"Be Vietnam Pro"', 'sans-serif'],
       },
       backgroundImage: {
         'auth-bg': "url('/src/assets/auth-bg.jpg')",
