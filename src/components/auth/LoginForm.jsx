@@ -22,10 +22,10 @@ export default function LoginForm({ onSwitch }) {
     setLoading(true);
     try {
       const res = await authService.login(form);
-      login(res.data.user, res.data.token);
+      login(res.user, res.token);
       toast.success('Đăng nhập thành công!');
       
-      if (res.data.user.role === 'admin') {
+      if (res.user.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/profile');
