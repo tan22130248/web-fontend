@@ -130,11 +130,11 @@ export default function AdminPage() {
     try {
       if (modal === 'create') {
         const response = await adminService.createUser({ ...payload, password: form.password });
-        upsertLocalUser(normalizeUser(response.data));
+        upsertLocalUser(normalizeUser(response));
         toast.success('Đã thêm người dùng');
       } else if (selectedUser) {
         const response = await adminService.updateUser(selectedUser.id, payload);
-        upsertLocalUser(normalizeUser(response.data));
+        upsertLocalUser(normalizeUser(response));
         toast.success('Đã cập nhật người dùng');
       }
       closeModal();
@@ -149,7 +149,7 @@ export default function AdminPage() {
     const nextStatus = !item.isActive;
     try {
       const response = await adminService.updateUserStatus(item.id, nextStatus);
-      upsertLocalUser(normalizeUser(response.data));
+      upsertLocalUser(normalizeUser(response));
       toast.success(nextStatus ? 'Đã mở khóa tài khoản' : 'Đã khóa tài khoản');
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Không thể đổi trạng thái tài khoản');

@@ -18,7 +18,7 @@ export function normalizeUser(user) {
 }
 
 export function unpackUsers(response) {
-  const data = response?.data;
+  const data = response;
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.content)) return data.content;
   if (Array.isArray(data?.users)) return data.users;
