@@ -74,6 +74,14 @@ export default function SellerOrderDetailPage() {
           </button>
           <div className="ml-auto flex items-center gap-3">
             <span className="text-sm font-medium text-gray-500">Mã đơn: <span className="font-bold text-gray-800 uppercase">{order.id}</span></span>
+            {order.ghnTrackingCode && (
+              <>
+                <div className="h-5 w-px bg-gray-300"></div>
+                <span className="text-sm font-medium text-brand-600 bg-brand-50 px-2 py-1 rounded-md border border-brand-100 flex items-center gap-1">
+                  🚚 Vận đơn GHN: <span className="font-bold uppercase tracking-wider">{order.ghnTrackingCode}</span>
+                </span>
+              </>
+            )}
             <div className="h-5 w-px bg-gray-300"></div>
             <OrderStatusBadge status={order.status} className="px-4 py-1.5" />
           </div>

@@ -6,6 +6,7 @@ import Footer from '../../components/common/Footer';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatPrice } from '../../utils/orderUtils';
+import ghnService from '../../services/ghnService';
 import orderService from '../../services/orderService';
 
 export default function CheckoutPage() {
@@ -17,11 +18,104 @@ export default function CheckoutPage() {
     fullName: user?.fullName || '',
     phone: user?.phone || '',
     address: '',
-    city: '',
+    provinceId: '',
+    districtId: '',
+    wardCode: '',
     note: ''
   });
   
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+  
   const [submitting, setSubmitting] = useState(false);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [calculatingFee, setCalculatingFee] = useState(false);
+
+  // Fetch provinces on mount
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const res = await ghnService.getProvinces();
+        setProvinces(res?.data || []);
+      } catch (error) {
+        toast.error('Không thể tải danh sách Tỉnh/Thành phố');
+      }
+    };
+    fetchProvinces();
+  }, []);
+
+  // Fetch districts when province changes
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!form.provinceId) {
+        setDistricts([]);
+        return;
+      }
+      try {
+        const res = await ghnService.getDistricts(form.provinceId);
+        setDistricts(res?.data || []);
+      } catch (error) {
+        toast.error('Không thể tải danh sách Quận/Huyện');
+      }
+    };
+    fetchDistricts();
+  }, [form.provinceId]);
+
+  // Fetch wards when district changes
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!form.districtId) {
+        setWards([]);
+        return;
+      }
+      try {
+        const res = await ghnService.getWards(form.districtId);
+        setWards(res?.data || []);
+      } catch (error) {
+        toast.error('Không thể tải danh sách Phường/Xã');
+      }
+    };
+    fetchWards();
+  }, [form.districtId]);
+
+  // Calculate dynamic shipping fee
+  useEffect(() => {
+    const fetchFee = async () => {
+      if (form.districtId && form.wardCode && items.length > 0) {
+        setCalculatingFee(true);
+        try {
+          const payload = {
+            toDistrictId: Number(form.districtId),
+            toWardCode: form.wardCode,
+            items: items.map(i => ({
+              productId: i.productId,
+              variantId: i.variantId || null,
+              quantity: i.quantity,
+            })),
+          };
+          const res = await orderService.calculateFee(payload);
+          // Assuming backend returns { totalFee: 35000 } or wrapped in Response
+          const feeData = res?.totalFee !== undefined ? res : res?.data;
+          setShippingFee(feeData?.totalFee || 0);
+        } catch (error) {
+          toast.error(error?.response?.data?.message || 'Lỗi tính phí giao hàng');
+          setShippingFee(0);
+        } finally {
+          setCalculatingFee(false);
+        }
+      } else {
+        setShippingFee(0);
+      }
+    };
+    
+    // Use debounce to prevent multiple calls if user clicks too fast
+    const timeoutId = setTimeout(() => {
+      fetchFee();
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [form.districtId, form.wardCode, items]);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -33,7 +127,6 @@ export default function CheckoutPage() {
   if (items.length === 0) return null;
 
   const totalAmount = items.reduce((sum, item) => sum + ((item.price || 0) * item.quantity), 0);
-  const shippingFee = 30000;
   const finalTotal = totalAmount + shippingFee;
 
   const handleChange = (e) => {
@@ -42,15 +135,23 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.fullName || !form.phone || !form.address || !form.city) {
+    if (!form.fullName || !form.phone || !form.address || !form.provinceId || !form.districtId || !form.wardCode) {
       toast.error('Vui lòng điền đầy đủ thông tin giao hàng');
       return;
     }
     
     setSubmitting(true);
     try {
+      const provinceName = provinces.find(p => p.ProvinceID == form.provinceId)?.ProvinceName || '';
+      const districtName = districts.find(d => d.DistrictID == form.districtId)?.DistrictName || '';
+      const wardName = wards.find(w => w.WardCode === form.wardCode)?.WardName || '';
+      
+      const fullAddress = `${form.address}, ${wardName}, ${districtName}, ${provinceName}`;
+
       const payload = {
-        shippingAddress: `${form.address}, ${form.city}`,
+        shippingAddress: fullAddress,
+        toDistrictId: Number(form.districtId),
+        toWardCode: form.wardCode,
         note: form.note || null,
         items: items.map(i => ({
           productId: i.productId,
@@ -138,17 +239,56 @@ export default function CheckoutPage() {
                   />
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Tỉnh / Thành phố</label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={form.city}
-                    onChange={handleChange}
-                    placeholder="Hồ Chí Minh"
-                    className="w-full border border-[#ede5db] rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-[#fafafa]"
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tỉnh / Thành phố</label>
+                    <select
+                      name="provinceId"
+                      value={form.provinceId}
+                      onChange={handleChange}
+                      className="w-full border border-[#ede5db] rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-[#fafafa]"
+                      required
+                    >
+                      <option value="">Chọn Tỉnh/Thành phố</option>
+                      {provinces.map(p => (
+                        <option key={p.ProvinceID} value={p.ProvinceID}>{p.ProvinceName}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Quận / Huyện</label>
+                    <select
+                      name="districtId"
+                      value={form.districtId}
+                      onChange={handleChange}
+                      className="w-full border border-[#ede5db] rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-[#fafafa]"
+                      required
+                      disabled={!form.provinceId}
+                    >
+                      <option value="">Chọn Quận/Huyện</option>
+                      {districts.map(d => (
+                        <option key={d.DistrictID} value={d.DistrictID}>{d.DistrictName}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phường / Xã</label>
+                    <select
+                      name="wardCode"
+                      value={form.wardCode}
+                      onChange={handleChange}
+                      className="w-full border border-[#ede5db] rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-[#fafafa]"
+                      required
+                      disabled={!form.districtId}
+                    >
+                      <option value="">Chọn Phường/Xã</option>
+                      {wards.map(w => (
+                        <option key={w.WardCode} value={w.WardCode}>{w.WardName}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 
                 <div>
@@ -206,7 +346,9 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-[#646652]">Phí vận chuyển</span>
-                  <span className="text-[#373928] font-medium">{formatPrice(shippingFee)}</span>
+                  <span className="text-[#373928] font-medium">
+                    {calculatingFee ? 'Đang tính...' : formatPrice(shippingFee)}
+                  </span>
                 </div>
               </div>
               

@@ -9,6 +9,8 @@ export const orderService = {
 
   createOrder: (data) => http.post('/api/orders', data),
 
+  calculateFee: (data) => http.post('/api/orders/calculate-fee', data),
+
   cancelOrder: (id, reason) =>
     http.patch(`/api/orders/${id}/cancel`, reason ? { reason } : {}),
 
