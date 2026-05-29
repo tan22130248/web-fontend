@@ -28,7 +28,7 @@ export default function LoginForm({ onSwitch }) {
       if (res.user.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/profile');
+        navigate('/home');
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Đăng nhập thất bại');

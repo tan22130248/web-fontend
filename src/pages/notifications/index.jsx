@@ -55,7 +55,7 @@ export default function NotificationsPage() {
     <div className="min-h-screen flex flex-col bg-[#f9f4ee] font-body text-[#3f3d2e]">
       <Navbar />
       
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-8 md:py-12">
+      <main className="flex-1 min-h-[95vh] max-w-3xl w-full mx-auto px-4 py-8 md:py-12">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-[#ac4218]">Thông báo của bạn</h1>
           {unreadCount > 0 && (

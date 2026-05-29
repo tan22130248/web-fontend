@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 import AdminModal from '../../components/admin/AdminModal';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminSidebar from '../../components/admin/AdminSidebar';
@@ -97,8 +98,28 @@ export default function AdminPage() {
   };
 
   const handleLogout = () => {
-    logout();
-    navigate('/auth');
+    Swal.fire({
+      title: 'Đăng xuất',
+      text: 'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đăng xuất',
+      cancelButtonText: 'Hủy',
+      background: '#fdf8f2',
+      color: '#3f3d2e',
+      buttonsStyling: false,
+      customClass: {
+        popup: 'rounded-2xl border border-[#ede5db] p-6',
+        confirmButton: 'bg-[#d4711e] hover:bg-[#c25f10] text-white px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-[0.98] outline-none border-none mx-2 cursor-pointer',
+        cancelButton: 'bg-[#a89d91] hover:bg-[#96897c] text-white px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-[0.98] outline-none border-none mx-2 cursor-pointer'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        toast.success('Đăng xuất thành công!');
+        navigate('/home');
+      }
+    });
   };
 
   const handleCreate = () => {
