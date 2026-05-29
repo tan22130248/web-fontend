@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 import Navbar from '../../components/common/Navbar';
 import Sidebar from '../../components/profile/Sidebar';
 import ProfileForm from '../../components/profile/ProfileForm';
@@ -13,8 +15,28 @@ export default function ProfilePage() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/auth');
+    Swal.fire({
+      title: 'Đăng xuất',
+      text: 'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đăng xuất',
+      cancelButtonText: 'Hủy',
+      background: '#fdf8f2',
+      color: '#3f3d2e',
+      buttonsStyling: false,
+      customClass: {
+        popup: 'rounded-2xl border border-[#ede5db] p-6',
+        confirmButton: 'bg-[#d4711e] hover:bg-[#c25f10] text-white px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-[0.98] outline-none border-none mx-2 cursor-pointer',
+        cancelButton: 'bg-[#a89d91] hover:bg-[#96897c] text-white px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-[0.98] outline-none border-none mx-2 cursor-pointer'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        logout();
+        toast.success('Đăng xuất thành công!');
+        navigate('/home');
+      }
+    });
   };
 
   const menuItems = [
@@ -32,9 +54,9 @@ export default function ProfilePage() {
         a { text-decoration: none; }
       `}</style>
 
-      <Navbar onLogout={handleLogout} userName={user?.username || user?.email} />
+      <Navbar userName={user?.username || user?.email} />
 
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '28px 20px 60px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '28px 20px 60px', minHeight: '95vh' }}>
         {/* HERO CARD */}
         <div style={{
           borderRadius: 16,

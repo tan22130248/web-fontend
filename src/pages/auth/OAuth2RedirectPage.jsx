@@ -33,7 +33,7 @@ export default function OAuth2RedirectPage() {
         if (user.role === 'admin') {
           navigate('/admin', { replace: true });
         } else {
-          navigate('/profile', { replace: true });
+          navigate('/home', { replace: true });
         }
       } catch {
         toast.error('Phiên đăng nhập không hợp lệ');

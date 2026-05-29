@@ -22,7 +22,7 @@ export default function OrderSuccessPage() {
     <div className="min-h-screen flex flex-col bg-[#f9f4ee] font-body text-[#3f3d2e]">
       <Navbar />
       
-      <main className="flex-1 flex items-center justify-center p-4 py-12">
+      <main className="flex-1 min-h-[95vh] flex items-center justify-center p-4 py-12">
         <div className="bg-white rounded-3xl p-10 md:p-12 text-center max-w-lg w-full border border-[#ede5db] shadow-sm">
           <div className="w-20 h-20 bg-[#e6f9ee] text-[#27ae60] rounded-full flex items-center justify-center mx-auto mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

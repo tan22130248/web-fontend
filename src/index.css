@@ -9,6 +9,10 @@
   --cream:         #fdf8f2;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Be Vietnam Pro', sans-serif;
   background-color: var(--cream);
@@ -62,4 +66,152 @@ body {
 /* Input field */
 .form-input {
   @apply w-full px-4 py-3 rounded-xl border border-brand-200 bg-white focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all duration-200 text-sm placeholder-brand-300;
+}
+
+/* Premium Dynamic Animations */
+.fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ken-burns {
+  animation: kenBurns 20s ease-in-out infinite alternate;
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kenBurns {
+  from {
+    transform: scale(1) translateY(0);
+  }
+  to {
+    transform: scale(1.08) translateY(-10px);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(211, 65, 63, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(211, 65, 63, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(211, 65, 63, 0);
+  }
+}
+
+/* Sparkle & Shimmer Sheen */
+.shimmer-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 30%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0.4) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+  transition: none;
+}
+
+.shimmer-shine:hover::after {
+  left: 150%;
+  transition: left 0.85s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+    filter: drop-shadow(0 0 0px rgba(254, 240, 138, 0));
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 0.95;
+    filter: drop-shadow(0 0 8px rgba(254, 240, 138, 0.9));
+  }
+}
+
+.animate-sparkle-1 {
+  animation: sparkle 3.5s ease-in-out infinite;
+}
+.animate-sparkle-2 {
+  animation: sparkle 4.5s ease-in-out infinite 0.8s;
+}
+.animate-sparkle-3 {
+  animation: sparkle 3s ease-in-out infinite 1.6s;
+}
+.animate-sparkle-4 {
+  animation: sparkle 5s ease-in-out infinite 0.3s;
+}
+.animate-sparkle-5 {
+  animation: sparkle 4s ease-in-out infinite 1.2s;
+}
+
+/* Falling particles animation (wedding card style) */
+@keyframes fallSwayRight {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.75;
+  }
+  90% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(110vh) translateX(100px) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+@keyframes fallSwayLeft {
+  0% {
+    transform: translateY(-10vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.75;
+  }
+  90% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(110vh) translateX(-100px) rotate(-540deg);
+    opacity: 0;
+  }
+}
+
+.animate-fall-right {
+  animation: fallSwayRight linear infinite;
+}
+
+.animate-fall-left {
+  animation: fallSwayLeft linear infinite;
 }

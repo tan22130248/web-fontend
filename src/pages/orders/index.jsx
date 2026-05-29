@@ -113,7 +113,7 @@ export default function OrdersPage() {
     <div className="min-h-screen flex flex-col bg-[#f9f4ee] font-body text-[#3f3d2e]">
       <Navbar />
       
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8 md:py-12">
+      <main className="flex-1 min-h-[95vh] max-w-5xl w-full mx-auto px-4 py-8 md:py-12">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#ac4218] mb-1">Đơn hàng của tôi</h1>
           <p className="text-sm text-gray-500">Quản lý và theo dõi trạng thái các đơn hàng bạn đã mua.</p>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginForm from '../../components/auth/LoginForm';
 import RegisterForm from '../../components/auth/RegisterForm';
@@ -20,7 +20,7 @@ function ShoppingBagIcon({ className }) {
 /* ─── Auth Page ────────────────────────────────────────────── */
 export default function AuthPage() {
   const [mode, setMode]   = useState('login'); // 'login' | 'register'
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate          = useNavigate();
   const [searchParams]    = useSearchParams();
 
@@ -30,9 +30,13 @@ export default function AuthPage() {
     const userRaw = searchParams.get('user');
     if (token) {
       try {
-        const user = userRaw ? JSON.parse(decodeURIComponent(userRaw)) : {};
-        login(user, token);
-        navigate('/home', { replace: true });
+        const decodedUser = userRaw ? JSON.parse(userRaw) : {};
+        login(decodedUser, token);
+        if (decodedUser?.role === 'admin' || decodedUser?.role === 'ADMIN') {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate('/home', { replace: true });
+        }
       } catch {
         toast.error('Đăng nhập OAuth thất bại');
       }
@@ -40,8 +44,24 @@ export default function AuthPage() {
   }, [searchParams, login, navigate]);
 
   useEffect(() => {
-    if (isAuthenticated) navigate('/home', { replace: true });
-  }, [isAuthenticated, navigate]);
+    if (isAuthenticated && user) {
+      if (user?.role === 'admin' || user?.role === 'ADMIN') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/home', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  // Handle mode query param (?mode=login|register)
+  useEffect(() => {
+    const m = searchParams.get('mode');
+    if (m === 'register') {
+      setMode('register');
+    } else if (m === 'login') {
+      setMode('login');
+    }
+  }, [searchParams]);
 
   return (
     <div
@@ -54,6 +74,14 @@ export default function AuthPage() {
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-dark/50 backdrop-blur-[2px]" />
+
+      {/* Floating Back to Home Button */}
+      <Link
+        to="/home"
+        className="absolute left-6 top-6 z-20 flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur border border-white/20 hover:bg-white/20 transition shadow-lg"
+      >
+        ← Quay lại Trang chủ
+      </Link>
 
       {/* Book card */}
       <div className="relative z-10 w-full max-w-4xl mx-4 rounded-3xl overflow-hidden shadow-2xl flex min-h-[580px]"
@@ -71,7 +99,7 @@ export default function AuthPage() {
             <div className="flex items-center gap-2 mb-8">
               <ShoppingBagIcon className="w-8 h-8 text-white" />
               <span className="font-display text-2xl font-bold text-white tracking-wide">
-                FashionHub
+                Tiệm Cũ
               </span>
             </div>
             <p className="text-brand-100 text-sm leading-relaxed">
@@ -137,7 +165,7 @@ export default function AuthPage() {
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-6 md:hidden">
             <ShoppingBagIcon className="w-6 h-6 text-brand-500" />
-            <span className="font-display text-xl font-bold text-dark">FashionHub</span>
+            <span className="font-display text-xl font-bold text-dark">Tiệm Cũ</span>
           </div>
 
           {mode === 'login'
