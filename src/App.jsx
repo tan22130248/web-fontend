@@ -24,6 +24,16 @@ import SellerOrdersPage from "./pages/seller/orders";
 import SellerOrderDetailPage from "./pages/seller/orders/SellerOrderDetailPage";
 import NotificationsPage from "./pages/notifications";
 
+// Product
+import ProductsPage from "./pages/products/ProductListPage";
+import ProductDetailPage from "./pages/products/ProductDetailPage";
+
+// Seller
+import SellerLayout from "./pages/seller/components/SellerLayout";
+import SellerDashboardPage from "./pages/seller/dash/SellerDashboardPage";
+import SellerProducts from "./pages/seller/products/SellerProducts";
+import SellerProductCreate from './pages/seller/products/SellerProductCreate';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -118,6 +128,41 @@ export default function App() {
                 </RoleBasedRoute>
               }
             />
+
+            {/* Products and Seller Management Routes */}
+            <Route
+              path="/seller"
+              element={
+                <RoleBasedRoute allowedRoles={["seller"]}>
+                  <SellerLayout />
+                </RoleBasedRoute>
+              }
+            >
+              <Route index element={<Navigate to="/seller/dashboard" replace />} />
+              <Route path="dashboard" element={<SellerDashboardPage />} />
+              <Route path="products" element={<SellerProducts />} />
+              <Route path="products/:id" element={<ProductDetailPage />} />
+              <Route path="products/create" element={<SellerProductCreate />} />
+            </Route>
+
+            <Route
+              path="/products"
+              element={
+                <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
+                  <ProductsPage />
+                </RoleBasedRoute>
+              }
+            />
+
+            <Route
+              path="/products/:id"
+              element={
+                <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
+                  <ProductDetailPage />
+                </RoleBasedRoute>
+              }
+            />
+
 
             <Route
               path="/notifications"
