@@ -43,14 +43,7 @@ export default function App() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
 
-            <Route
-              path="/home"
-              element={
-                <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
-                  <HomePage />
-                </RoleBasedRoute>
-              }
-            />
+            <Route path="/home" element={<HomePage />} />
 
             <Route
               path="/profile"
@@ -145,24 +138,8 @@ export default function App() {
               <Route path="products/create" element={<SellerProductCreate />} />
             </Route>
 
-            <Route
-              path="/products"
-              element={
-                <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
-                  <ProductsPage />
-                </RoleBasedRoute>
-              }
-            />
-
-            <Route
-              path="/products/:id"
-              element={
-                <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
-                  <ProductDetailPage />
-                </RoleBasedRoute>
-              }
-            />
-
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
 
             <Route
               path="/notifications"
@@ -173,13 +150,13 @@ export default function App() {
               }
             />
 
-            <Route path="/" element={<Navigate to="/auth" replace />} />
-            <Route path="*" element={<Navigate to="/auth" replace />} />
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </BrowserRouter>
 
         <ToastContainer
-          position="top-right"
+          position="bottom-right"
           autoClose={3000}
           hideProgressBar={false}
           newestOnTop

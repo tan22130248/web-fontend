@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
+import Navbar from '../../components/common/Navbar';
 import productService from '../../services/productService';
+import { ArrowLeft } from 'lucide-react';
 
 const formatPrice = (val) => {
   if (val == null) return '0đ';
@@ -52,6 +56,7 @@ export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { isAuthenticated } = useAuth();
 
   /* ── state ── */
   const [product, setProduct] = useState(null);
@@ -69,6 +74,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (!id) return;
+    window.scrollTo(0, 0);
     let cancelled = false;
 
     const fetchData = async () => {
@@ -137,6 +143,10 @@ export default function ProductDetail() {
   }, [product, selectedVariant]);
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      toast.error('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!');
+      return;
+    }
     if (!product) return;
     addItem({
       productId: product.id,
@@ -149,9 +159,14 @@ export default function ProductDetail() {
       variantId: selectedVariant?.id || null,
       quantity,
     });
+    toast.success('Đã thêm sản phẩm vào giỏ hàng!');
   };
 
   const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast.error('Vui lòng đăng nhập để mua hàng!');
+      return;
+    }
     handleAddToCart();
     navigate('/checkout');
   };
@@ -171,7 +186,7 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased">
         <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
-        <Header />
+        <Navbar />
         <DetailSkeleton />
       </div>
     );
@@ -180,7 +195,7 @@ export default function ProductDetail() {
   if (error || !product) {
     return (
       <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased">
-        <Header />
+        <Navbar />
         <div className="max-w-lg mx-auto px-4 py-24 text-center">
           <div className="text-6xl mb-6">🛍️</div>
           <h2 className="text-2xl font-bold text-[#4A3B32] mb-3">Không tìm thấy sản phẩm</h2>
@@ -201,8 +216,16 @@ export default function ProductDetail() {
     : [product.imageUrl].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased">
-      <Header />
+    <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased relative">
+      <Navbar />
+
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute left-4 lg:left-8 top-24 z-10 flex items-center justify-center text-[#4A3B32] hover:text-[#A14A24] bg-white border border-[#EBE7D9] w-10 h-10 rounded-full shadow-md transition-all hover:scale-110 active:scale-[0.98] focus:outline-none group"
+        title="Quay lại"
+      >
+        <ArrowLeft size={20} className="transform group-hover:-translate-x-0.5 transition-transform" strokeWidth={2.5} />
+      </button>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -547,50 +570,4 @@ export default function ProductDetail() {
     </div>
   );
 }
-
-function Header() {
-  const navigate = useNavigate();
-  const { itemCount } = useCart();
-
-  return (
-    <header className="border-b border-[#EBE7D9] bg-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/home" className="text-xl font-bold tracking-wider text-[#A14A24] border-2 border-dashed border-[#A14A24] px-3 py-1 cursor-pointer hover:bg-[#A14A24]/5 transition-colors">
-          Tủ cũ chill
-        </Link>
-        <nav className="hidden md:flex space-x-8 font-medium text-sm text-[#6B5A4E]">
-          <Link to="/home" className="hover:text-[#A14A24] transition-colors">Khám Phá</Link>
-          <Link to="/products" className="text-[#A14A24] font-semibold">Cửa Hàng</Link>
-        </nav>
-        <div className="flex items-center space-x-5 text-gray-600">
-          <button onClick={() => navigate('/products')} className="hover:text-[#A14A24] transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-          <button onClick={() => navigate('/notifications')} className="hover:text-[#A14A24] transition-colors">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-          </button>
-          <button onClick={() => navigate('/cart')} className="hover:text-[#A14A24] transition-colors relative">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z" />
-            </svg>
-            {itemCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 bg-[#A14A24] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {itemCount > 9 ? '9+' : itemCount}
-              </span>
-            )}
-          </button>
-          <div
-            onClick={() => navigate('/profile')}
-            className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-xs font-bold text-orange-800 cursor-pointer hover:ring-2 hover:ring-[#A14A24]/30 transition-all"
-          >
-            U
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
+

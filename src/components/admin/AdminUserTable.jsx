@@ -19,6 +19,34 @@ export default function AdminUserTable({
   const startIndex = filteredCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const endIndex = Math.min(page * pageSize, filteredCount);
 
+  const getVisiblePages = () => {
+    const pages = [];
+    pages.push(1);
+    
+    let start = Math.max(2, page - 1);
+    let end = Math.min(totalPages - 1, page + 1);
+    
+    if (start > 2) {
+      pages.push('...');
+    }
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    if (end < totalPages - 1) {
+      pages.push('...');
+    }
+    
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+    
+    return pages;
+  };
+
+  const visiblePages = getVisiblePages();
+
   return (
     <section className="overflow-hidden rounded-[9px] bg-white shadow-[0_8px_28px_rgba(103,84,51,0.04)]">
       <div className="overflow-x-auto">
@@ -110,25 +138,34 @@ export default function AdminUserTable({
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] bg-[#eeedce] font-black text-[#686954] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] bg-[#eeedce] font-black text-[#686954] disabled:cursor-not-allowed disabled:opacity-50 hover:bg-[#e2dfc7] transition-colors"
             onClick={() => onPageChange(Math.max(1, page - 1))}
             disabled={page === 1}
           >
             ‹
           </button>
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
-            <button
-              key={pageNumber}
-              type="button"
-              className={`flex h-[38px] w-[38px] items-center justify-center rounded-[10px] font-black ${pageNumber === page ? 'bg-[#bd4c23] text-white' : 'bg-[#eeedce] text-[#686954]'}`}
-              onClick={() => onPageChange(pageNumber)}
-            >
-              {pageNumber}
-            </button>
-          ))}
+          {visiblePages.map((pageNumber, idx) => {
+            if (pageNumber === '...') {
+              return (
+                <span key={`dots-${idx}`} className="px-2 text-[#8f907d] font-bold select-none">
+                  ...
+                </span>
+              );
+            }
+            return (
+              <button
+                key={pageNumber}
+                type="button"
+                className={`flex h-[38px] w-[38px] items-center justify-center rounded-[10px] font-black transition-colors ${pageNumber === page ? 'bg-[#bd4c23] text-white' : 'bg-[#eeedce] text-[#686954] hover:bg-[#e2dfc7]'}`}
+                onClick={() => onPageChange(pageNumber)}
+              >
+                {pageNumber}
+              </button>
+            );
+          })}
           <button
             type="button"
-            className="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] bg-[#eeedce] font-black text-[#686954] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] bg-[#eeedce] font-black text-[#686954] disabled:cursor-not-allowed disabled:opacity-50 hover:bg-[#e2dfc7] transition-colors"
             onClick={() => onPageChange(Math.min(totalPages, page + 1))}
             disabled={page === totalPages}
           >

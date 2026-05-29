@@ -77,7 +77,7 @@ export default function CartPage() {
     <div className="min-h-screen flex flex-col bg-[#f9f4ee] font-body text-[#3f3d2e]">
       <Navbar />
       
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <main className="flex-1 min-h-[95vh] w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#ac4218] mb-2 tracking-tight">Giỏ hàng của bạn</h1>
           <p className="text-[#646652]">Kiểm tra các sản phẩm trước khi thanh toán.</p>
