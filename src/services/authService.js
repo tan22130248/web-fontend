@@ -11,6 +11,10 @@ export const authService = {
 
   verifyOtp: (email, otp) => http.post('/api/auth/verify-otp', { email, otp }),
 
+  forgotPassword: (emailOrPhone) => http.post('/api/auth/forgot-password', { emailOrPhone }),
+
+  resetPassword: (data) => http.post('/api/auth/reset-password', data),
+
   googleLogin: () => {
     window.location.href = `${process.env.REACT_APP_API_URL}/oauth2/authorization/google`;
   },

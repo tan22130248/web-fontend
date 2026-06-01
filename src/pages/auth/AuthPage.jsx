@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginForm from '../../components/auth/LoginForm';
 import RegisterForm from '../../components/auth/RegisterForm';
+import ForgotPasswordForm from '../../components/auth/ForgotPasswordForm';
 import SocialLogin from '../../components/auth/SocialLogin';
 import { useAuth } from '../../context/AuthContext';
 
@@ -19,7 +20,7 @@ function ShoppingBagIcon({ className }) {
 
 /* ─── Auth Page ────────────────────────────────────────────── */
 export default function AuthPage() {
-  const [mode, setMode]   = useState('login'); // 'login' | 'register'
+  const [mode, setMode]   = useState('login'); // 'login' | 'register' | 'forgot'
   const { login, isAuthenticated, user } = useAuth();
   const navigate          = useNavigate();
   const [searchParams]    = useSearchParams();
@@ -132,6 +133,16 @@ export default function AuthPage() {
             >
               Đăng ký
             </button>
+            <button
+              onClick={() => setMode('forgot')}
+              className={`w-full py-3 rounded-xl text-sm font-semibold transition-all duration-200 border ${
+                mode === 'forgot'
+                  ? 'bg-white text-brand-700 border-white'
+                  : 'bg-transparent text-white border-white/40 hover:border-white/80 hover:bg-white/10'
+              }`}
+            >
+              Quên mật khẩu?
+            </button>
 
             {/* Social logins on left too */}
             <div className="pt-2 space-y-2">
@@ -169,8 +180,10 @@ export default function AuthPage() {
           </div>
 
           {mode === 'login'
-            ? <LoginForm  onSwitch={() => setMode('register')} />
-            : <RegisterForm onSwitch={() => setMode('login')} />
+            ? <LoginForm onSwitch={() => setMode('register')} onForgotPassword={() => setMode('forgot')} />
+            : mode === 'register'
+            ? <RegisterForm onSwitch={() => setMode('login')} />
+            : <ForgotPasswordForm onSwitch={() => setMode('login')} />
           }
         </div>
       </div>
