@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { authService } from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
 
-export default function LoginForm({ onSwitch }) {
+export default function LoginForm({ onSwitch, onForgotPassword }) {
   const [form, setForm]     = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { login }           = useAuth();
@@ -71,6 +71,7 @@ export default function LoginForm({ onSwitch }) {
         <div className="flex justify-end">
           <button
             type="button"
+            onClick={onForgotPassword}
             className="text-xs text-brand-500 hover:text-brand-700 transition-colors"
           >
             Quên mật khẩu?

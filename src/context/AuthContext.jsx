@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import http from '../services/authService';
 
 const AuthContext = createContext(null);
 
 function repairVietnameseText(value) {
   if (typeof value !== 'string') return value;
 
-  // Common mojibake pattern: UTF-8 bytes interpreted as Latin-1/Windows-1252.
-  if (!/[ÃÂÄ]/.test(value)) return value;
+  // Detect common mojibake patterns where UTF-8 bytes were decoded as Latin-1/Windows-1252.
+  // Valid Vietnamese strings normally do not contain two consecutive Latin-1 extended chars.
+  if (!/([\u00C0-\u00FF]{2,})/.test(value)) return value;
 
   try {
     const bytes = Uint8Array.from(value.split('').map((char) => char.charCodeAt(0) & 0xff));
@@ -43,6 +45,18 @@ export function AuthProvider({ children }) {
     setToken(jwt);
     localStorage.setItem('user', JSON.stringify(normalizedUser));
     localStorage.setItem('token', jwt);
+    // If backend login response omits some profile fields, fetch full profile
+    if (!normalizedUser?.phone || !normalizedUser?.avatarUrl || !normalizedUser?.fullName) {
+      (async () => {
+        try {
+          const profile = await http.get('/api/user/profile');
+          if (profile) updateUser(profile);
+        } catch (e) {
+          // Non-fatal; keep the partial user
+          console.warn('Unable to fetch full profile after login', e?.message || e);
+        }
+      })();
+    }
   };
 
   const logout = () => {
@@ -52,8 +66,14 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
   };
 
+  const updateUser = (userData) => {
+    const normalizedUser = normalizeUserData(userData);
+    setUser(normalizedUser);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );
