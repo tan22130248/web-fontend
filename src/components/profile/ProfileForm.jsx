@@ -16,7 +16,7 @@ const inputStyle = {
 };
 
 export default function ProfileForm() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [form, setForm] = useState({
     fullName: '',
     phone: '',
@@ -49,15 +49,20 @@ export default function ProfileForm() {
     }
     setLoading(true);
     try {
-      const response = await api.put('/api/user/profile', {
+      const updatedUserData = await api.put('/api/user/profile', {
         fullName: form.fullName,
         phone: form.phone,
         avatarUrl: form.avatarUrl,
       });
 
-      if (response.status === 200) {
-        toast.success('Thông tin đã được cập nhật thành công');
-      }
+      updateUser(updatedUserData);
+      setForm({
+        fullName: updatedUserData.fullName || updatedUserData.username || '',
+        phone: updatedUserData.phone || '',
+        email: updatedUserData.email || '',
+        avatarUrl: updatedUserData.avatarUrl || '',
+      });
+      toast.success('Thông tin đã được cập nhật thành công');
     } catch (error) {
       console.error('Update profile error:', error);
       toast.error(error.response?.data?.message || 'Lỗi khi cập nhật thông tin: ' + error.message);

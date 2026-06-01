@@ -99,8 +99,13 @@ export default function ProfilePage() {
 
           <div>
             <h1 style={{ fontSize: 26, fontWeight: 700, color: '#2d1f1f', marginBottom: 4 }}>
-              Xin chào, {user?.username || user?.email}
+              Xin chào, {user?.fullName || user?.username || user?.email}
             </h1>
+            {user?.phone && (
+              <p style={{ fontSize: 14, color: '#6b5a52', marginBottom: 8 }}>
+                Số điện thoại: {user.phone}
+              </p>
+            )}
             <p style={{ fontSize: 13, color: '#9e8c82', marginBottom: 12 }}>
               Thành viên thân thiết • {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : 'Tham gia'}
             </p>
