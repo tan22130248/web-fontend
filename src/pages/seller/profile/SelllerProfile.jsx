@@ -1,20 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import shopService from '../../../services/shopService';
 
 export default function SellerProfile() {
-    // Quản lý trạng thái thông tin cửa hàng để đồng bộ trực tiếp sang khung Preview
+    const [isNewShop, setIsNewShop] = useState(true);
     const [shopData, setShopData] = useState({
-        name: 'Tiệm Cũ Boutique',
-        bio: 'Chào mừng bạn đến với Tiệm Cũ Boutique. Chúng mình chuyên cung cấp các mặt hàng vintage tuyển chọn, từ quần áo đến đồ trang trí nhà cửa, mang đậm hơi thở thời gian và tinh thần bền vững.',
-        phone: '090 123 4567',
-        email: 'contact@tiemcu.vn',
-        location: 'Quận 1, TP. Hồ Chí Minh',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-        cover: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&auto=format&fit=crop&q=80'
+        shopName: '',
+        description: '',
+        address: '',
+        avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+        coverUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&auto=format&fit=crop&q=80',
+        ghnToken: '',
+        ghnShopId: ''
     });
+
+    useEffect(() => {
+        shopService.getMyShop()
+            .then(data => {
+                setShopData(prev => ({
+                    shopName: data.shopName || '',
+                    description: data.description || '',
+                    address: data.address || '',
+                    avatarUrl: data.avatarUrl || prev.avatarUrl,
+                    coverUrl: data.coverUrl || prev.coverUrl,
+                    ghnToken: data.ghnToken || '',
+                    ghnShopId: data.ghnShopId || ''
+                }));
+                setIsNewShop(false);
+            })
+            .catch(err => {
+                setIsNewShop(true);
+                toast.info('Hãy cập nhật thông tin để mở cửa hàng của bạn!');
+            });
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setShopData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = () => {
+        if (!shopData.shopName) {
+            toast.error("Vui lòng nhập tên cửa hàng");
+            return;
+        }
+
+        const payload = {
+            shopName: shopData.shopName,
+            description: shopData.description,
+            address: shopData.address,
+            avatarUrl: shopData.avatarUrl,
+            coverUrl: shopData.coverUrl,
+            ghnToken: shopData.ghnToken,
+            ghnShopId: shopData.ghnShopId ? parseInt(shopData.ghnShopId) : null
+        };
+
+        if (isNewShop) {
+            shopService.createShop(payload)
+                .then(() => {
+                    toast.success('Tạo cửa hàng thành công!');
+                    setIsNewShop(false);
+                })
+                .catch(err => toast.error(err.message || 'Lỗi khi tạo cửa hàng'));
+        } else {
+            shopService.updateShop(payload)
+                .then(() => {
+                    toast.success('Cập nhật cửa hàng thành công!');
+                })
+                .catch(err => toast.error(err.message || 'Lỗi khi cập nhật'));
+        }
     };
 
     return (
@@ -42,21 +96,21 @@ export default function SellerProfile() {
                         <div className="flex items-center space-x-6 bg-[#FAF9F5]/40 p-4 rounded-xl border border-[#FAF8F2]">
                             <div className="relative w-20 h-20 shrink-0">
                                 <img
-                                    src={shopData.avatar}
+                                    src={shopData.avatarUrl}
                                     alt="Shop Avatar"
                                     className="w-full h-full object-cover rounded-2xl border-2 border-white shadow-sm"
                                 />
-                                <button className="absolute -bottom-1 -right-1 bg-[#C85C32] text-white p-1 rounded-full text-xs shadow hover:bg-[#b04f29] transition-colors" title="Đổi ảnh">
-                                    ✏️
-                                </button>
                             </div>
-                            <div className="text-[11px] text-gray-400 leading-normal">
-                                <p className="font-bold text-gray-500 mb-1">Khuyến dùng ảnh hình vuông, tối thiểu 500x500px.</p>
-                                <p>Định dạng JPG, PNG.</p>
-                                {/* Thanh tiến trình giả lập độ hoàn thiện hồ sơ */}
-                                <div className="w-48 h-1.5 bg-gray-200 rounded-full mt-2 overflow-hidden">
-                                    <div className="w-4/5 h-full bg-emerald-500 rounded-full"></div>
-                                </div>
+                            <div className="flex-1 space-y-2">
+                                <label className="text-xs font-bold text-[#4A3B32]">URL Ảnh Đại Diện</label>
+                                <input
+                                    type="text"
+                                    name="avatarUrl"
+                                    value={shopData.avatarUrl}
+                                    onChange={handleChange}
+                                    className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-3 py-2 text-xs text-gray-600 outline-none focus:ring-1 focus:ring-[#A14A24]"
+                                    placeholder="https://..."
+                                />
                             </div>
                         </div>
                     </div>
@@ -64,15 +118,23 @@ export default function SellerProfile() {
                     {/* 2. KHỐI ẢNH BÌA CỬA HÀNG */}
                     <div className="bg-white p-6 rounded-2xl border border-[#F0ECE0] shadow-sm space-y-4">
                         <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Ảnh bìa cửa hàng</h3>
-                        <div className="relative h-32 w-full rounded-xl overflow-hidden group bg-gray-100 border border-[#EBE7D9]">
+                        <div className="relative h-32 w-full rounded-xl overflow-hidden bg-gray-100 border border-[#EBE7D9]">
                             <img
-                                src={shopData.cover}
+                                src={shopData.coverUrl}
                                 alt="Shop Cover"
                                 className="w-full h-full object-cover"
                             />
-                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                <span className="text-xs font-bold text-white bg-black/50 px-3 py-1.5 rounded-xl">Thay đổi ảnh bìa</span>
-                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-bold text-[#4A3B32]">URL Ảnh Bìa</label>
+                            <input
+                                type="text"
+                                name="coverUrl"
+                                value={shopData.coverUrl}
+                                onChange={handleChange}
+                                className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-3 py-2 text-xs text-gray-600 outline-none focus:ring-1 focus:ring-[#A14A24]"
+                                placeholder="https://..."
+                            />
                         </div>
                     </div>
 
@@ -84,8 +146,8 @@ export default function SellerProfile() {
                             <label className="text-xs font-bold text-[#4A3B32]">Tên cửa hàng</label>
                             <input
                                 type="text"
-                                name="name"
-                                value={shopData.name}
+                                name="shopName"
+                                value={shopData.shopName}
                                 onChange={handleChange}
                                 className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-4 py-2.5 text-xs font-bold text-[#4A3B32] outline-none focus:ring-1 focus:ring-[#A14A24]"
                             />
@@ -95,36 +157,12 @@ export default function SellerProfile() {
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-[#4A3B32]">Mô tả Ngắn</label>
                             <textarea
-                                name="bio"
+                                name="description"
                                 rows="4"
-                                value={shopData.bio}
+                                value={shopData.description}
                                 onChange={handleChange}
                                 className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-4 py-3 text-xs text-gray-600 leading-relaxed outline-none focus:ring-1 focus:ring-[#A14A24]"
                             />
-                        </div>
-
-                        {/* Số điện thoại & Email liên hệ */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-[#4A3B32]">Số điện thoại</label>
-                                <input
-                                    type="text"
-                                    name="phone"
-                                    value={shopData.phone}
-                                    onChange={handleChange}
-                                    className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-4 py-2.5 text-xs text-gray-600 outline-none"
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-[#4A3B32]">Email liên hệ</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={shopData.email}
-                                    onChange={handleChange}
-                                    className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-4 py-2.5 text-xs text-gray-600 outline-none"
-                                />
-                            </div>
                         </div>
 
                         {/* Địa chỉ / Khu vực */}
@@ -133,20 +171,46 @@ export default function SellerProfile() {
                             <div className="relative">
                                 <input
                                     type="text"
-                                    name="location"
-                                    value={shopData.location}
+                                    name="address"
+                                    value={shopData.address}
                                     onChange={handleChange}
                                     className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl pl-4 pr-10 py-2.5 text-xs text-gray-600 outline-none"
                                 />
                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs">📍</span>
                             </div>
                         </div>
+
+                        {/* Cấu hình GHN */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#F0ECE0] pt-4 mt-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-[#4A3B32]">GHN Shop ID</label>
+                                <input
+                                    type="number"
+                                    name="ghnShopId"
+                                    value={shopData.ghnShopId}
+                                    onChange={handleChange}
+                                    placeholder="ID trên hệ thống GHN"
+                                    className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-4 py-2.5 text-xs text-gray-600 outline-none"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-[#4A3B32]">GHN Token</label>
+                                <input
+                                    type="text"
+                                    name="ghnToken"
+                                    value={shopData.ghnToken}
+                                    onChange={handleChange}
+                                    placeholder="API Token GHN"
+                                    className="w-full bg-[#FAF8F0] border border-[#EBE7D9] rounded-xl px-4 py-2.5 text-xs text-gray-600 outline-none"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Nút lưu thay đổi dưới chân form */}
                     <div className="flex justify-center pt-2">
-                        <button className="bg-[#C85C32] hover:bg-[#b04f29] text-white font-bold text-xs px-12 py-3 rounded-xl shadow-md transition-colors w-full sm:w-auto">
-                            Lưu thay đổi
+                        <button onClick={handleSave} className="bg-[#C85C32] hover:bg-[#b04f29] text-white font-bold text-xs px-12 py-3 rounded-xl shadow-md transition-colors w-full sm:w-auto">
+                            {isNewShop ? 'Tạo cửa hàng' : 'Lưu thay đổi'}
                         </button>
                     </div>
                 </div>
@@ -164,16 +228,16 @@ export default function SellerProfile() {
 
                             {/* 1. Header ảnh bìa của Mobile Preview */}
                             <div className="h-24 relative bg-gray-100">
-                                <img src={shopData.cover} alt="Preview Cover" className="w-full h-full object-cover" />
+                                <img src={shopData.coverUrl} alt="Preview Cover" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40"></div>
                             </div>
 
                             {/* 2. Avatar & Badge vị trí đè lên ảnh nền */}
                             <div className="px-3 -mt-6 relative z-10 flex items-end justify-between">
                                 <img
-                                    src={shopData.avatar}
+                                    src={shopData.avatarUrl}
                                     alt="Preview Avatar"
-                                    className="w-12 h-12 rounded-xl object-cover border-2 border-white shadow-sm"
+                                    className="w-12 h-12 rounded-xl object-cover border-2 border-white shadow-sm bg-white"
                                 />
                                 <span className="text-[8px] font-black bg-[#E3ECCB] text-[#556B2F] px-1.5 py-0.5 rounded shadow-sm tracking-wide uppercase">
                                     TOP SELLER
@@ -182,24 +246,24 @@ export default function SellerProfile() {
 
                             {/* 3. Tên shop & Địa điểm */}
                             <div className="px-3 mt-2">
-                                <h4 className="font-black text-xs text-[#4A3B32]">{shopData.name || 'Tên cửa hàng'}</h4>
-                                <p className="text-[9px] text-gray-400 flex items-center gap-0.5 mt-0.5">
-                                    📍 {shopData.location || 'Chưa cập nhật'}
+                                <h4 className="font-black text-xs text-[#4A3B32]">{shopData.shopName || 'Tên cửa hàng'}</h4>
+                                <p className="text-[9px] text-gray-400 flex items-center gap-0.5 mt-0.5 line-clamp-1">
+                                    📍 {shopData.address || 'Chưa cập nhật địa chỉ'}
                                 </p>
                             </div>
 
                             {/* 4. Khối 3 thông số: Sản phẩm - Đánh giá - Phản hồi */}
                             <div className="grid grid-cols-3 gap-1 px-3 mt-3 text-center">
                                 <div className="bg-[#FAF9F5] py-1.5 rounded-lg border border-[#F2EFE4]">
-                                    <span className="text-[10px] font-black text-[#4A3B32] block">124</span>
+                                    <span className="text-[10px] font-black text-[#4A3B32] block">-</span>
                                     <span className="text-[7px] font-bold text-gray-400 uppercase">Sản phẩm</span>
                                 </div>
                                 <div className="bg-[#FAF9F5] py-1.5 rounded-lg border border-[#F2EFE4]">
-                                    <span className="text-[10px] font-black text-[#4A3B32] block">4.9/5</span>
+                                    <span className="text-[10px] font-black text-[#4A3B32] block">5.0</span>
                                     <span className="text-[7px] font-bold text-gray-400 uppercase">Đánh giá</span>
                                 </div>
                                 <div className="bg-[#FAF9F5] py-1.5 rounded-lg border border-[#F2EFE4]">
-                                    <span className="text-[10px] font-black text-[#4A3B32] block">98%</span>
+                                    <span className="text-[10px] font-black text-[#4A3B32] block">100%</span>
                                     <span className="text-[7px] font-bold text-gray-400 uppercase">Phản hồi</span>
                                 </div>
                             </div>
@@ -207,7 +271,7 @@ export default function SellerProfile() {
                             {/* 5. Dòng tiểu sử (Bio) shop */}
                             <div className="px-3 mt-3">
                                 <p className="text-[9px] text-gray-500 leading-normal line-clamp-3 italic">
-                                    {shopData.bio || 'Chưa viết lời giới thiệu...'}
+                                    {shopData.description || 'Chưa viết lời giới thiệu...'}
                                 </p>
                             </div>
 
@@ -228,7 +292,7 @@ export default function SellerProfile() {
                     <div className="bg-[#EBF5E6] border border-[#D5E8CD] p-4 rounded-xl flex items-start space-x-3 max-w-[280px] mx-auto lg:mx-0">
                         <span className="text-sm">💡</span>
                         <div className="text-[11px] leading-relaxed text-[#2E4213]">
-                            <span className="font-bold">Mẹo nhỏ:</span> Sử dụng ảnh bìa có tông màu trung tính sẽ làm nổi bật logo và thông tin của hàng của bạn hơn trên thiết bị di động.
+                            <span className="font-bold">Mẹo nhỏ:</span> Cập nhật GHN Shop ID và Token để tự động tính phí vận chuyển và đẩy đơn sang Giao Hàng Nhanh.
                         </div>
                     </div>
 

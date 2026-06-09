@@ -32,7 +32,9 @@ import ProductDetailPage from "./pages/products/ProductDetailPage";
 import SellerLayout from "./pages/seller/components/SellerLayout";
 import SellerDashboardPage from "./pages/seller/dash/SellerDashboardPage";
 import SellerProducts from "./pages/seller/products/SellerProducts";
-import SellerProductCreate from './pages/seller/products/SellerProductCreate';
+import SellerProductCreate from "./pages/seller/products/SellerProductCreate";
+import SellerAnalytics from "./pages/seller/analytics/SellerAnalytics";
+import SelllerProfile from "./pages/seller/profile/SelllerProfile";
 
 export default function App() {
   return (
@@ -105,23 +107,6 @@ export default function App() {
               }
             />
 
-            <Route
-              path="/seller/orders"
-              element={
-                <RoleBasedRoute allowedRoles={["seller"]}>
-                  <SellerOrdersPage />
-                </RoleBasedRoute>
-              }
-            />
-            <Route
-              path="/seller/orders/:id"
-              element={
-                <RoleBasedRoute allowedRoles={["seller"]}>
-                  <SellerOrderDetailPage />
-                </RoleBasedRoute>
-              }
-            />
-
             {/* Products and Seller Management Routes */}
             <Route
               path="/seller"
@@ -131,11 +116,18 @@ export default function App() {
                 </RoleBasedRoute>
               }
             >
-              <Route index element={<Navigate to="/seller/dashboard" replace />} />
+              <Route path="orders" element={<SellerOrdersPage />} />
+              <Route path="orders/:id" element={<SellerOrderDetailPage />} />
+              <Route
+                index
+                element={<Navigate to="/seller/dashboard" replace />}
+              />
               <Route path="dashboard" element={<SellerDashboardPage />} />
               <Route path="products" element={<SellerProducts />} />
               <Route path="products/:id" element={<ProductDetailPage />} />
               <Route path="products/create" element={<SellerProductCreate />} />
+              <Route path="analytics" element={<SellerAnalytics />} />
+              <Route path="profile" element={<SelllerProfile />} />
             </Route>
 
             <Route path="/products" element={<ProductsPage />} />
