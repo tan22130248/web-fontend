@@ -1,7 +1,6 @@
 import http from '../utils/http';
 
 export const orderService = {
-  // Buyer
   getMyOrders: (params = {}) =>
     http.get('/api/orders', { role: 'buyer', ...params }),
 
@@ -15,7 +14,6 @@ export const orderService = {
   requestRefund: (id, reason) =>
     http.patch(`/api/orders/${id}/refund`, reason ? { reason } : {}),
 
-  // Seller — same base path, distinguished by role param
   getSellerOrders: (params = {}) =>
     http.get('/api/orders', { role: 'seller', ...params }),
 
@@ -29,6 +27,8 @@ export const orderService = {
 
   cancelSellerOrder: (id, reason) =>
     http.patch(`/api/orders/${id}/cancel`, reason ? { reason } : {}),
+
+  getSellerRegistrationStatus: () => http.get('/api/seller/check-seller-status'),
 };
 
 export default orderService;

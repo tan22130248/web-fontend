@@ -29,4 +29,6 @@ export const adminMenuItems = [
   ['products', 'Sản phẩm'],
   ['users', 'Người dùng'],
   ['settings', 'Cài Đặt'],
+  { icon: 'users', label: 'Người dùng', key: 'users' },
+  { icon: 'shop', label: 'Đăng ký người bán', key: 'registrations' },
 ];

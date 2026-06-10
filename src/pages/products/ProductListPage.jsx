@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/common/Navbar';
 import categoryService from '../../services/categoryService';
@@ -8,11 +8,12 @@ export default function ProductsPage() {
   const [filters, setFilters] = useState(() => {
     try {
       const saved = sessionStorage.getItem('products_filters');
-      return saved ? JSON.parse(saved) : {
+        return saved ? JSON.parse(saved) : {
         categoryId: '',
         conditionStatus: '',
         minPrice: '',
         maxPrice: '',
+        keyword: '',
         sortBy: 'soldCount,desc',
         page: 0,
         size: 9,
@@ -23,6 +24,7 @@ export default function ProductsPage() {
         conditionStatus: '',
         minPrice: '',
         maxPrice: '',
+        keyword: '',
         sortBy: 'soldCount,desc',
         page: 0,
         size: 9,
@@ -56,6 +58,10 @@ export default function ProductsPage() {
     isFirst: true,
     isLast: true,
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
+  const searchRef = useRef(null);
 
   useEffect(() => {
     categoryService
@@ -76,33 +82,86 @@ export default function ProductsPage() {
         params[key] = filters[key];
       }
     });
-
-    productService
-      .filter(params)
-      .then((response) => {
-        const pageData = response?.data || response;
-        if (pageData?.content) {
-          setProducts(pageData.content);
-          setPagination({
-            totalElements: pageData.totalElements,
-            totalPages: pageData.totalPages,
-            isFirst: pageData.first,
-            isLast: pageData.last,
-          });
-
-          const savedScroll = sessionStorage.getItem('products_scroll_pos');
-          if (savedScroll) {
-            setTimeout(() => {
-              window.scrollTo(0, parseInt(savedScroll, 10));
-              sessionStorage.removeItem('products_scroll_pos');
-            }, 100);
+    if (filters.keyword && filters.keyword.trim() !== '') {
+      productService
+        .search(filters.keyword, filters.page, filters.size)
+        .then((response) => {
+          const pageData = response?.data || response;
+          if (pageData?.content) {
+            setProducts(pageData.content);
+            setPagination({
+              totalElements: pageData.totalElements,
+              totalPages: pageData.totalPages,
+              isFirst: pageData.first,
+              isLast: pageData.last,
+            });
+          } else {
+            setProducts([]);
           }
-        } else {
-          setProducts([]);
-        }
-      })
-      .catch((error) => console.error('Lỗi khi lọc danh sách sản phẩm:', error));
+        })
+        .catch((error) => console.error('Lỗi khi tìm kiếm sản phẩm:', error));
+    } else {
+      productService
+        .filter(params)
+        .then((response) => {
+          const pageData = response?.data || response;
+          if (pageData?.content) {
+            setProducts(pageData.content);
+            setPagination({
+              totalElements: pageData.totalElements,
+              totalPages: pageData.totalPages,
+              isFirst: pageData.first,
+              isLast: pageData.last,
+            });
+
+            const savedScroll = sessionStorage.getItem('products_scroll_pos');
+            if (savedScroll) {
+              setTimeout(() => {
+                window.scrollTo(0, parseInt(savedScroll, 10));
+                sessionStorage.removeItem('products_scroll_pos');
+              }, 100);
+            }
+          } else {
+            setProducts([]);
+          }
+        })
+        .catch((error) => console.error('Lỗi khi lọc danh sách sản phẩm:', error));
+    }
   }, [filters]);
+
+  useEffect(() => {
+    if (!searchQuery || searchQuery.trim() === '') {
+      setSuggestions([]);
+      setIsSuggestionsOpen(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      productService
+        .search(searchQuery.trim(), 0, 8)
+        .then((response) => {
+          const content = response?.data?.content || response?.content || [];
+          setSuggestions(content);
+          setIsSuggestionsOpen(true);
+        })
+        .catch(() => {
+          setSuggestions([]);
+          setIsSuggestionsOpen(false);
+        });
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const onClick = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setIsSuggestionsOpen(false);
+      }
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
 
   const handleCategoryChange = (id) => {
     setFilters((prev) => ({ ...prev, categoryId: prev.categoryId === id ? '' : id, page: 0 }));
@@ -240,6 +299,53 @@ export default function ProductsPage() {
             </div>
 
             <div className="flex items-center space-x-2 self-end sm:self-auto">
+              <div ref={searchRef} className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const kw = searchQuery.trim();
+                      setFilters((prev) => ({ ...prev, keyword: kw, page: 0 }));
+                      setIsSuggestionsOpen(false);
+                    }
+                  }}
+                  placeholder="Tìm tên sản phẩm..."
+                  className="w-64 bg-white border border-[#EBE7D9] rounded px-3 py-1.5 text-sm text-[#4A3B32] focus:ring-1 focus:ring-[#A14A24] outline-none"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilters((prev) => ({ ...prev, keyword: '', page: 0 }));
+                      setIsSuggestionsOpen(false);
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                    aria-label="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
+                {isSuggestionsOpen && suggestions.length > 0 && (
+                  <div className="absolute right-0 left-0 mt-1 bg-white border border-[#EDE9DA] rounded shadow-md z-50 overflow-hidden">
+                    {suggestions.map((p) => (
+                      <Link
+                        key={p.id}
+                        to={`/products/${p.id}`}
+                        onClick={() => {
+                          setSearchQuery('');
+                          setIsSuggestionsOpen(false);
+                        }}
+                        className="block px-3 py-2 text-sm text-[#4A3B32] hover:bg-gray-50"
+                      >
+                        {p.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <span className="text-xs text-gray-500">Sắp xếp theo:</span>
               <select
                 value={filters.sortBy}
