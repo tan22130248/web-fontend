@@ -12,7 +12,14 @@ import AuthPage from "./pages/auth/AuthPage";
 import OAuth2RedirectPage from "./pages/auth/OAuth2RedirectPage";
 import HomePage from "./pages/home/HomePage";
 import ProfilePage from "./pages/profile";
-import AdminPage from "./pages/admin";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminRegistrationsPage from "./pages/admin/AdminRegistrationsPage";
+import AdminProductsPage from "./pages/admin/AdminProductsPage";
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
+import AdminOrderDetailPage from "./pages/admin/AdminOrderDetailPage";
+import AdminComplaintsPage from "./pages/admin/AdminComplaintsPage";
+
 
 // Order & Delivery routes
 import CartPage from "./pages/cart";
@@ -61,10 +68,18 @@ export default function App() {
               path="/admin"
               element={
                 <RoleBasedRoute allowedRoles={["admin"]}>
-                  <AdminPage />
+                  <AdminLayout />
                 </RoleBasedRoute>
               }
-            />
+            >
+              <Route index element={<Navigate to="/admin/products" replace />} />
+              <Route path="products" element={<AdminProductsPage />} />
+              <Route path="orders" element={<AdminOrdersPage />} />
+              <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="registrations" element={<AdminRegistrationsPage />} />
+              <Route path="complaints" element={<AdminComplaintsPage />} />
+            </Route>
 
             {/* New Order & Delivery Routes */}
             <Route

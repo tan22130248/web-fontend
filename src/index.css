@@ -5,8 +5,8 @@
 
 :root {
   --brand-primary: #d4711e;
-  --brand-dark:    #7a3516;
-  --cream:         #fdf8f2;
+  --brand-dark: #7a3516;
+  --cream: #fdf8f2;
 }
 
 html {
@@ -23,17 +23,33 @@ body {
 .slide-in-right {
   animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
 .slide-in-left {
   animation: slideInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(30px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-30px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* OTP input */
@@ -48,9 +64,10 @@ body {
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .otp-input:focus {
   border-color: #d4711e;
-  box-shadow: 0 0 0 3px rgba(212,113,30,0.15);
+  box-shadow: 0 0 0 3px rgba(212, 113, 30, 0.15);
 }
 
 /* Social btn */
@@ -86,6 +103,7 @@ body {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -96,6 +114,7 @@ body {
   from {
     transform: scale(1) translateY(0);
   }
+
   to {
     transform: scale(1.08) translateY(-10px);
   }
@@ -105,9 +124,11 @@ body {
   0% {
     box-shadow: 0 0 0 0 rgba(211, 65, 63, 0.5);
   }
+
   70% {
     box-shadow: 0 0 0 8px rgba(211, 65, 63, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(211, 65, 63, 0);
   }
@@ -126,14 +147,12 @@ body {
   left: -150%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.4) 30%,
-    rgba(255, 255, 255, 0.65) 50%,
-    rgba(255, 255, 255, 0.4) 70%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.4) 30%,
+      rgba(255, 255, 255, 0.65) 50%,
+      rgba(255, 255, 255, 0.4) 70%,
+      rgba(255, 255, 255, 0) 100%);
   transform: skewX(-25deg);
   pointer-events: none;
   transition: none;
@@ -145,11 +164,14 @@ body {
 }
 
 @keyframes sparkle {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(0) rotate(0deg);
     opacity: 0;
     filter: drop-shadow(0 0 0px rgba(254, 240, 138, 0));
   }
+
   50% {
     transform: scale(1) rotate(180deg);
     opacity: 0.95;
@@ -160,15 +182,19 @@ body {
 .animate-sparkle-1 {
   animation: sparkle 3.5s ease-in-out infinite;
 }
+
 .animate-sparkle-2 {
   animation: sparkle 4.5s ease-in-out infinite 0.8s;
 }
+
 .animate-sparkle-3 {
   animation: sparkle 3s ease-in-out infinite 1.6s;
 }
+
 .animate-sparkle-4 {
   animation: sparkle 5s ease-in-out infinite 0.3s;
 }
+
 .animate-sparkle-5 {
   animation: sparkle 4s ease-in-out infinite 1.2s;
 }
@@ -179,12 +205,15 @@ body {
     transform: translateY(-10vh) translateX(0) rotate(0deg);
     opacity: 0;
   }
+
   10% {
     opacity: 0.75;
   }
+
   90% {
     opacity: 0.75;
   }
+
   100% {
     transform: translateY(110vh) translateX(100px) rotate(540deg);
     opacity: 0;
@@ -196,12 +225,15 @@ body {
     transform: translateY(-10vh) translateX(0) rotate(0deg);
     opacity: 0;
   }
+
   10% {
     opacity: 0.75;
   }
+
   90% {
     opacity: 0.75;
   }
+
   100% {
     transform: translateY(110vh) translateX(-100px) rotate(-540deg);
     opacity: 0;
