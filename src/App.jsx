@@ -34,6 +34,9 @@ import SellerDashboardPage from "./pages/seller/dash/SellerDashboardPage";
 import SellerProducts from "./pages/seller/products/SellerProducts";
 import SellerProductCreate from './pages/seller/products/SellerProductCreate';
 
+import ExploreShops from "./pages/shop/ExploreShops";        
+import ShopDetail from "./pages/shop/ShopDetail";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -138,6 +141,8 @@ export default function App() {
               <Route path="products/create" element={<SellerProductCreate />} />
             </Route>
 
+            <Route path="/explore" element={<ExploreShops />} />
+            <Route path="/shop/:shopId" element={<ShopDetail />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
 
