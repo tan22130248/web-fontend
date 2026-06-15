@@ -34,7 +34,13 @@ export default function AdminIcon({ type, className = 'h-[18px] w-[18px]' }) {
     edit: <path d="m5 19 4.1-1 9.8-9.8a2 2 0 0 0-2.8-2.8L6.3 15.2 5 19Zm10.4-12.2 2.8 2.8" />,
     ban: <path d="M5 5 19 19M19 12A7 7 0 0 1 7.1 17M5 12A7 7 0 0 1 16.9 7" />,
     logout: <path d="M10 17 15 12l-5-5m5 5H3m7 8h9a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-9" />,
+    check: <path d="m5 13 4 4L19 7" />,
+    trash: <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7m4 4v6m4-6v6" />,
+    truck: <path d="M3 7h11v8H3V7Zm11 3h4l3 3v2h-7v-5Zm-7 8a1.6 1.6 0 1 0 0 .1Zm10 0a1.6 1.6 0 1 0 0 .1Z" />,
+    calendar: <path d="M5 7h14v13H5V7Zm0 4h14M8 4v4m8-4v4" />,
+    refresh: <path d="M5 12a7 7 0 0 1 12-5l2 2m0-4v4h-4M19 12a7 7 0 0 1-12 5l-2-2m0 4v-4h4" />,
   };
+
 
   return (
     <svg

@@ -31,77 +31,46 @@ function normalizeList(payload) {
   return [];
 }
 
-function SparkleStar({ className, style }) {
-  return (
-    <svg 
-      className={`absolute text-yellow-200 pointer-events-none fill-current ${className}`} 
-      style={{ width: 18, height: 18, ...style }} 
-      viewBox="0 0 24 24"
-    >
-      <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z" />
-    </svg>
-  );
-}
-
-function FallingParticles() {
-  const particles = useMemo(() => {
-    const arr = [];
-    const colors = [
-      'text-[#fbc7a7]', // Peach petal
-      'text-yellow-200', // Sparkle gold
-      'text-[#f8d7da]', // Rose petal
-      'text-[#e2dfc7]', // Sage/cream petal
-      'text-[#be4e20]/40' // Sheer burnt orange leaf
-    ];
-    for (let i = 0; i < 32; i++) {
-      const isSparkle = Math.random() > 0.55;
-      const isEven = i % 2 === 0;
-      // Start slightly wider (-10% to 110%) to ensure full coverage of screen edges
-      const startLeft = -10 + Math.random() * 120;
-      arr.push({
-        id: i,
-        left: `${startLeft}%`,
-        delay: `${Math.random() * -20}s`, // Negative delay makes them instantly populate the height of the screen on load
-        duration: `${10 + Math.random() * 12}s`,
-        size: 10 + Math.floor(Math.random() * 12),
-        color: colors[Math.floor(Math.random() * colors.length)],
-        isSparkle,
-        isEven,
-      });
-    }
-    return arr;
-  }, []);
+function Snowfall({ count = 60 }) {
+  const flakes = useMemo(() => {
+    const symbols = ['❄', '❅', '❆', '•', '✦'];
+    return Array.from({ length: count }).map((_, index) => {
+      const size = Math.random() * 14 + 6; // 6px - 20px
+      const duration = Math.random() * 10 + 8; // 8s - 18s fall time
+      const delay = Math.random() * -18; // negative so they're mid-fall on load
+      const left = Math.random() * 100; // vw position
+      const drift = Math.random() > 0.5 ? 'animate-fall-right' : 'animate-fall-left';
+      const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+      const opacity = Math.random() * 0.5 + 0.4; // 0.4 - 0.9
+      return { id: index, size, duration, delay, left, drift, symbol, opacity };
+    });
+  }, [count]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {particles.map((p) => {
-        const directionClass = p.isEven ? 'animate-fall-right' : 'animate-fall-left';
-        return (
-          <svg
-            key={p.id}
-            className={`absolute ${directionClass} fill-current ${p.color}`}
-            style={{
-              left: p.left,
-              animationDelay: p.delay,
-              animationDuration: p.duration,
-              width: p.size,
-              height: p.size,
-            }}
-            viewBox="0 0 24 24"
-          >
-            {p.isSparkle ? (
-              <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z" />
-            ) : (
-              <path d="M12 2C12 2 19 7 19 12C19 17 15 21 12 22C9 21 5 17 5 12C5 7 12 2 12 2Z" />
-            )}
-          </svg>
-        );
-      })}
+    <div className="pointer-events-none fixed inset-0 z-40 overflow-hidden" aria-hidden="true">
+      {flakes.map((flake) => (
+        <span
+          key={flake.id}
+          className={`absolute top-0 ${flake.drift} select-none`}
+          style={{
+            left: `${flake.left}vw`,
+            fontSize: `${flake.size}px`,
+            opacity: flake.opacity,
+            color: '#ffffff',
+            textShadow: '0 0 6px rgba(255,255,255,0.85)',
+            animationDuration: `${flake.duration}s`,
+            animationDelay: `${flake.delay}s`,
+          }}
+        >
+          {flake.symbol}
+        </span>
+      ))}
     </div>
   );
 }
 
 export default function HomePage() {
+
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   const { itemCount } = useCart();
@@ -216,27 +185,17 @@ export default function HomePage() {
   }, [productsByCategory]);
 
   const categoryTabs = useMemo(() => {
-    const iconForCategory = (name = '', slug = '') => {
-      const key = `${name} ${slug}`.toLowerCase();
-      if (/áo|shirt|top/.test(key)) return '⌇';
-      if (/váy|đầm|dress|skirt/.test(key)) return '◇';
-      if (/giày|shoe|sneaker|boot|dép/.test(key)) return '◍';
-      return '•';
-    };
-
     const mappedTabs = categories.map((cat) => ({
       id: cat.id,
       name: cat.name,
-      icon: iconForCategory(cat.name, cat.slug),
-      count: products.filter((p) => p.categoryId === cat.id).length,
     }));
 
-    return [{ id: 'all', name: 'Tất cả', icon: '', count: products.length }, ...mappedTabs];
-  }, [categories, products]);
+    return [{ id: 'all', name: 'Tất cả' }, ...mappedTabs];
+  }, [categories]);
 
   return (
     <div className="min-h-screen bg-[#f4f4dc] font-body text-[#3f3d2e]">
-      <FallingParticles />
+      <Snowfall count={60} />
       <header className="sticky top-0 z-30 border-b border-[#e2dfc7] bg-[#f4f4dc]/95 backdrop-blur">
         <div className="relative mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link to="/home" className="text-4 font-display text-3xl font-bold italic text-[#b14f25]">
@@ -258,10 +217,10 @@ export default function HomePage() {
                 <button onClick={() => navigate('/notifications')} className="hover:opacity-80 transition flex items-center justify-center" aria-label="Thông báo" title="Thông báo">
                   <Bell size={20} strokeWidth={2.2} />
                 </button>
-                <button 
-                  onClick={() => navigate(user?.role === 'seller' ? '/seller/orders' : '/orders')} 
-                  className="hover:opacity-80 transition flex items-center justify-center" 
-                  aria-label="Đơn hàng" 
+                <button
+                  onClick={() => navigate(user?.role === 'seller' ? '/seller/orders' : '/orders')}
+                  className="hover:opacity-80 transition flex items-center justify-center"
+                  aria-label="Đơn hàng"
                   title="Đơn hàng"
                 >
                   <Package size={20} strokeWidth={2.2} />
@@ -370,34 +329,12 @@ export default function HomePage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-wrap items-center justify-end gap-2 py-2">
-          {categoryTabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveCategoryId(tab.id)}
-              className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-[15px] font-semibold transition ${activeCategoryId === tab.id
-                ? 'bg-white text-[#be4e20] shadow-sm'
-                : 'text-[#5e5a49] hover:bg-white/70'
-                }`}
-            >
-              <span className="text-base">{tab.icon}</span>
-              <span>{tab.name} ({tab.count} sản phẩm)</span>
-            </button>
-          ))}
-        </div>
-
+      <main className="mx-auto w-full max-w-7xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
         <section className="relative overflow-hidden rounded-[36px]">
           <img src={HERO_IMAGE} alt="Thời trang vintage" className="h-[500px] w-full object-cover ken-burns" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/62 via-black/22 to-transparent" />
 
-          {/* Twinkling Sparkles */}
-          <SparkleStar className="animate-sparkle-1" style={{ top: '12%', left: '55%' }} />
-          <SparkleStar className="animate-sparkle-2" style={{ top: '25%', left: '78%', width: 22, height: 22 }} />
-          <SparkleStar className="animate-sparkle-3" style={{ top: '68%', left: '42%' }} />
-          <SparkleStar className="animate-sparkle-4" style={{ top: '18%', left: '8%', width: 14, height: 14 }} />
-          <SparkleStar className="animate-sparkle-5" style={{ top: '75%', left: '88%', width: 20, height: 20 }} />
-          <SparkleStar className="animate-sparkle-1" style={{ top: '48%', left: '68%', width: 16, height: 16 }} />
+
 
           <div className="absolute left-8 top-10 max-w-[560px] text-white sm:left-12 sm:top-14 fade-in-up">
             <span className="inline-flex rounded-full bg-[#b9ec97] px-4 py-1 text-xs font-bold text-[#2e4b21] shadow-sm">
@@ -422,7 +359,22 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="trending" className="mt-10 scroll-mt-20">
+        <div className="mt-20 mb-6 flex flex-wrap items-center justify-center gap-2 py-2">
+          {categoryTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveCategoryId(tab.id)}
+              className={`inline-flex items-center rounded-2xl px-5 py-2.5 text-[15px] font-semibold transition ${activeCategoryId === tab.id
+                ? 'bg-white text-[#be4e20] shadow-sm'
+                : 'text-[#5e5a49] hover:bg-white/70'
+                }`}
+            >
+              <span>{tab.name}</span>
+            </button>
+          ))}
+        </div>
+
+        <section id="trending" className="mt-8 scroll-mt-20">
           <div className="mb-4 flex items-end justify-between">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#b14f25]">Limited time</p>
@@ -435,16 +387,16 @@ export default function HomePage() {
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {dealProducts.map((product) => (
-              <Link 
-                key={product.id} 
-                to={`/products/${product.id}`} 
+              <Link
+                key={product.id}
+                to={`/products/${product.id}`}
                 className="group rounded-[26px] bg-white p-3 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border border-[#e2dfc7]/40 hover:shadow-[0_20px_40px_rgba(177,79,37,0.08)] hover:border-[#b14f25]/10 hover:-translate-y-2 transition-all duration-300 ease-out block shimmer-shine"
               >
                 <div className="relative overflow-hidden rounded-[20px]">
-                  <img 
-                    src={getImage(product)} 
-                    alt={product.name} 
-                    className="h-64 w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
+                  <img
+                    src={getImage(product)}
+                    alt={product.name}
+                    className="h-64 w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
                   <span className="absolute left-3 top-3 rounded-full bg-[#d3413f] px-3 py-1 text-xs font-bold text-white shadow-md pulse-glow">
                     Hot
@@ -467,10 +419,10 @@ export default function HomePage() {
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
             {latestProducts[0] && (
               <Link to={`/products/${latestProducts[0].id}`} className="group relative lg:col-span-2 overflow-hidden rounded-[38px] block">
-                <img 
-                  src={getImage(latestProducts[0])} 
-                  alt={latestProducts[0].name} 
-                  className="h-[620px] w-full object-cover group-hover:scale-103 transition-transform duration-700 ease-out" 
+                <img
+                  src={getImage(latestProducts[0])}
+                  alt={latestProducts[0].name}
+                  className="h-[620px] w-full object-cover group-hover:scale-103 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
                 <div className="absolute bottom-8 left-8 text-white">
@@ -486,10 +438,10 @@ export default function HomePage() {
             <div className="grid gap-6">
               {latestProducts.slice(1).map((product) => (
                 <Link key={product.id} to={`/products/${product.id}`} className="group relative overflow-hidden rounded-[38px] block">
-                  <img 
-                    src={getImage(product)} 
-                    alt={product.name} 
-                    className="h-[298px] w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
+                  <img
+                    src={getImage(product)}
+                    alt={product.name}
+                    className="h-[298px] w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
                   <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300" />
                 </Link>
