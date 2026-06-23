@@ -1,18 +1,22 @@
 import React from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AdminIcon from './AdminIcon';
 import { adminMenuItems } from './adminConstants';
 
 export default function AdminSidebar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   return (
     <aside className="flex min-h-0 flex-col gap-4 border-b border-[#6f6f43]/15 p-[18px] lg:min-h-screen lg:gap-7 lg:border-b-0 lg:border-r lg:px-[22px] lg:py-[34px]">
       <div className="pl-0 text-[22px] font-black italic text-[#b7451b] lg:pl-10">Tiệm Cũ</div>
       <nav className="grid grid-cols-2 gap-[9px] sm:grid-cols-3 lg:grid-cols-1" aria-label="Admin">
-        {adminMenuItems.map(([icon, label]) => {
-          const active = label === 'Người dùng';
+        {adminMenuItems.map(({ icon, label, path }) => {
+          const active = location.pathname === path || location.pathname.startsWith(`${path}/`);
           return (
-            <button
-              key={label}
-              type="button"
+            <Link
+              key={path}
+              to={path}
               className={`flex h-10 items-center justify-center gap-3 rounded-[22px] px-3 text-left text-[13px] font-black transition lg:justify-start lg:px-[18px] ${
                 active ? 'bg-[#ededc5] text-[#bd4c23]' : 'text-[#5d5f4d] hover:bg-[#ededc5] hover:text-[#bd4c23]'
               }`}
@@ -20,15 +24,16 @@ export default function AdminSidebar() {
             >
               <AdminIcon type={icon} />
               <span>{label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>
       <button
         type="button"
         className="mt-auto h-11 w-full rounded-[10px] bg-gradient-to-r from-[#bf4d1b] to-[#fb7148] text-[13px] font-black text-white shadow-[0_12px_28px_rgba(191,77,27,0.18)] lg:w-[174px]"
+        onClick={() => navigate('/admin/products')}
       >
-        Đăng Sản Phẩm
+        Quản lý sàn
       </button>
     </aside>
   );

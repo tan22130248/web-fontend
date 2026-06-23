@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import sellerDashboardService from '../../../services/sellerDashboardService';
 import sellerReputationService from '../../../services/sellerReputationService';
@@ -56,10 +57,29 @@ export default function SellerAnalytics() {
       label: 'Đánh giá trung bình',
       value: `${reputationData.averageRating.toFixed(1)} / 5.0`,
       change: `${reputationData.totalReviews} lượt`,
+=======
+import React from 'react';
+
+export default function SellerAnalytics() {
+  // Dữ liệu giả lập các chỉ số vận hành từ ảnh mockup
+  const stats = [
+    {
+      label: 'Tỉ lệ thành công',
+      value: '98.5%',
+      change: '+2.1%',
+      status: 'good', // tốt
+      icon: '🟢',
+    },
+    {
+      label: 'Đánh giá trung bình',
+      value: '4.8 / 5.0',
+      change: null,
+>>>>>>> main
       status: 'normal',
       icon: '⭐',
     },
     {
+<<<<<<< HEAD
       label: 'Tỉ lệ phản hồi',
       value: `${(reputationData.responseRate * 100).toFixed(0)}%`,
       change: null,
@@ -71,6 +91,19 @@ export default function SellerAnalytics() {
       value: `${(reputationData.cancellationRate * 100).toFixed(1)}%`,
       change: null,
       status: reputationData.cancellationRate < 0.05 ? 'good' : 'warning',
+=======
+      label: 'Thời gian phản hồi',
+      value: '< 15 phút',
+      change: 'Cải thiện',
+      status: 'warning', // cần chú ý cải thiện
+      icon: '💬',
+    },
+    {
+      label: 'Tỉ lệ hoàn hàng',
+      value: '1.2%',
+      change: null,
+      status: 'good',
+>>>>>>> main
       icon: '📋',
     },
   ];
@@ -81,6 +114,7 @@ export default function SellerAnalytics() {
       date: '24/10/2023',
       event: 'Hoàn thành đơn #12345',
       points: '+10',
+<<<<<<< HEAD
       total: reputationData.currentPoints,
       type: 'plus',
     }
@@ -92,15 +126,51 @@ export default function SellerAnalytics() {
 
   return (
     <div className="space-y-6">
+=======
+      total: 1250,
+      type: 'plus',
+    },
+    {
+      date: '23/10/2023',
+      event: 'Nhận đánh giá 5 sao',
+      points: '+5',
+      total: 1240,
+      type: 'plus',
+    },
+    {
+      date: '20/10/2023',
+      event: 'Hủy đơn do hết hàng',
+      points: '-15',
+      total: 1235,
+      type: 'minus',
+    },
+    {
+      date: '18/10/2023',
+      event: 'Hoàn thành đơn #12340',
+      points: '+10',
+      total: 1250,
+      type: 'plus',
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* 1. Tiêu đề phụ nhỏ */}
+>>>>>>> main
       <div className="text-xs text-gray-400 font-medium -mt-2">
         Trang đánh giá tích điểm - seller
       </div>
 
+<<<<<<< HEAD
       {/* KHỐI ĐIỂM SỐ UY TÍN CHÍNH */}
+=======
+      {/* 2. KHỐI ĐIỂM SỐ UY TÍN CHÍNH (HẠNG BẠC) */}
+>>>>>>> main
       <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#F0ECE0] shadow-sm flex flex-col md:flex-row items-center gap-8">
         
         {/* Vòng tròn điểm số tiến trình (Progress Circle) */}
         <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+<<<<<<< HEAD
           <div className="absolute inset-0 rounded-full border-[6px] border-[#FAF8F0]"></div>
           {/* Một thanh progress giả lập xoay 45 độ - Trong thực tế cần dùng SVG stroke-dasharray */}
           <div className="absolute inset-0 rounded-full border-[6px] border-t-[#A14A24] border-r-[#A14A24] border-b-[#FAF8F0] border-l-[#FAF8F0] rotate-45"></div>
@@ -108,11 +178,21 @@ export default function SellerAnalytics() {
           <div className="text-center z-10">
             <span className="text-2xl font-black text-[#4A3B32]">{reputationData.currentPoints}</span>
             <span className="text-[10px] text-gray-400 block border-t border-gray-100 mt-0.5 pt-0.5 font-medium">/ {rank.nextLevel} điểm</span>
+=======
+          {/* Vòng tròn viền gradient biểu diễn 1250 / 2000 điểm */}
+          <div className="absolute inset-0 rounded-full border-[6px] border-[#FAF8F0]"></div>
+          <div className="absolute inset-0 rounded-full border-[6px] border-t-[#A14A24] border-r-[#A14A24] border-b-[#FAF8F0] border-l-[#FAF8F0] rotate-45"></div>
+          
+          <div className="text-center z-10">
+            <span className="text-2xl font-black text-[#4A3B32]">1250</span>
+            <span className="text-[10px] text-gray-400 block border-t border-gray-100 mt-0.5 pt-0.5 font-medium">/ 2000 điểm</span>
+>>>>>>> main
           </div>
         </div>
 
         {/* Thông tin xếp hạng cụ thể */}
         <div className="flex-1 text-center md:text-left space-y-2">
+<<<<<<< HEAD
           <span className={`text-[9px] font-black tracking-wider px-2 py-0.5 rounded-md inline-block uppercase ${rank.color}`}>
             🏆 {rank.name}
           </span>
@@ -123,6 +203,19 @@ export default function SellerAnalytics() {
             Còn <span className="font-bold text-[#A14A24]">{pointsToNext > 0 ? pointsToNext : 0} điểm</span> nữa để lên cấp tiếp theo! Hãy tiếp tục duy trì dịch vụ tuyệt vời này nhé.
           </p>
           
+=======
+          <span className="text-[9px] font-black tracking-wider bg-[#EDE9DA] text-gray-600 px-2 py-0.5 rounded-md inline-block uppercase">
+            🏆 Hạng Bạc
+          </span>
+          <h2 className="text-xl sm:text-2xl font-black text-[#4A3B32] leading-tight">
+            Tuyệt vời! Cửa hàng đang hoạt động rất tốt.
+          </h2>
+          <p className="text-xs text-gray-500 max-w-xl leading-relaxed">
+            Còn <span className="font-bold text-[#A14A24]">750 điểm</span> nữa để lên hạng Vàng! Hãy tiếp tục duy trì dịch vụ tuyệt vời này nhé.
+          </p>
+          
+          {/* Nhóm các nút tương tác hành động nhanh */}
+>>>>>>> main
           <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
             <button className="bg-[#E87745] hover:bg-[#d66534] text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors shadow-sm">
               Xem đặc quyền Hạng Vàng
@@ -134,6 +227,7 @@ export default function SellerAnalytics() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* TÓM TẮT ĐƠN HÀNG VÀ SẢN PHẨM */}
       <div className="flex flex-wrap gap-4">
         <div className="bg-[#EBF5E6] text-[#2E4213] p-4 rounded-xl flex-1 min-w-[200px] border border-[#D5E8CD]">
@@ -147,6 +241,9 @@ export default function SellerAnalytics() {
       </div>
 
       {/* KHỐI LƯỚI 4 CHỈ SỐ VẬN HÀNH */}
+=======
+      {/* 3. KHỐI LƯỚI 4 CHỈ SỐ VẬN HÀNH */}
+>>>>>>> main
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((item, idx) => (
           <div key={idx} className="bg-white p-4 rounded-2xl border border-[#F0ECE0] shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[105px]">
@@ -164,6 +261,10 @@ export default function SellerAnalytics() {
               <div className="text-lg font-black text-[#4A3B32] mt-2">{item.value}</div>
             </div>
             
+<<<<<<< HEAD
+=======
+            {/* Icon mờ nền trang trí tinh tế chuẩn UI */}
+>>>>>>> main
             <span className="absolute bottom-2 right-3 opacity-10 text-xl pointer-events-none">
               {item.icon}
             </span>
@@ -171,7 +272,11 @@ export default function SellerAnalytics() {
         ))}
       </div>
 
+<<<<<<< HEAD
       {/* BẢNG LỊCH SỬ UY TÍN */}
+=======
+      {/* 4. BẢNG LỊCH SỬ UY TÍN (CREDIT HISTORY) */}
+>>>>>>> main
       <div className="bg-white rounded-2xl border border-[#F0ECE0] shadow-sm overflow-hidden">
         <div className="p-5 border-b border-[#FAF8F0]">
           <h3 className="font-bold text-sm text-[#4A3B32]">Lịch sử điểm Uy tín</h3>
@@ -191,9 +296,17 @@ export default function SellerAnalytics() {
             <tbody className="divide-y divide-[#FAF8F0] text-xs text-[#4A3B32]">
               {historyLog.map((log, i) => (
                 <tr key={i} className="hover:bg-[#FAF9F5]/30 transition-colors">
+<<<<<<< HEAD
                   <td className="py-4 px-6 font-medium text-gray-400">
                     {log.date}
                   </td>
+=======
+                  {/* Ngày tháng */}
+                  <td className="py-4 px-6 font-medium text-gray-400">
+                    {log.date}
+                  </td>
+                  {/* Nội dung sự kiện */}
+>>>>>>> main
                   <td className="py-4 px-6 font-medium">
                     <div className="flex items-center space-x-2">
                       <span className="text-xs">
@@ -202,11 +315,19 @@ export default function SellerAnalytics() {
                       <span>{log.event}</span>
                     </div>
                   </td>
+<<<<<<< HEAD
+=======
+                  {/* Điểm số (+/-) */}
+>>>>>>> main
                   <td className={`py-4 px-6 text-center font-bold ${
                     log.type === 'plus' ? 'text-emerald-600' : 'text-red-500'
                   }`}>
                     {log.points}
                   </td>
+<<<<<<< HEAD
+=======
+                  {/* Tổng tích lũy */}
+>>>>>>> main
                   <td className="py-4 px-6 text-right font-bold text-gray-600">
                     {log.total}
                   </td>
@@ -215,6 +336,16 @@ export default function SellerAnalytics() {
             </tbody>
           </table>
         </div>
+<<<<<<< HEAD
+=======
+
+        {/* Nút xem toàn bộ lịch sử cuối bảng */}
+        <div className="border-t border-[#FAF8F0] py-3 text-center bg-[#FAF9F5]/20">
+          <button className="text-[11px] font-bold text-[#A14A24] hover:underline">
+            Xem toàn bộ lịch sử
+          </button>
+        </div>
+>>>>>>> main
       </div>
     </div>
   );

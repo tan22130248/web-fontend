@@ -1,4 +1,4 @@
-import http from '../utils/http';
+import http from "../utils/http";
 
 const sellerProductService = {
   /**
@@ -6,13 +6,13 @@ const sellerProductService = {
    * GET /api/seller/products?page=0&size=10&keyword=...&status=ALL
    * @returns {Page<ProductSellerDto>} — content[], pageable, totalElements, totalPages, ...
    */
-  getProducts: (page = 0, size = 10, keyword = '', status = 'ALL') => {
+  getProducts: (page = 0, size = 10, keyword = "", status = "ALL") => {
     // Tạo object params, tự động loại bỏ keyword nếu để trống để URL sạch hơn
     const params = { page, size, status };
     if (keyword) {
       params.keyword = keyword;
     }
-    return http.get('/api/seller/products', params);
+    return http.get("/api/seller/products", params);
   },
 
   /**
@@ -21,7 +21,8 @@ const sellerProductService = {
    * @param {Object} productData — Object chứa thông tin Product model
    * @returns {Product} — Trả về thông tin sản phẩm vừa tạo thành công
    */
-  createProduct: (productData) => http.post('/api/seller/products', productData),
+  createProduct: (productData) =>
+    http.post("/api/seller/products", productData),
 
   /**
    * 3. Xem chi tiết sản phẩm (Icon con mắt / Form sửa)
@@ -37,7 +38,8 @@ const sellerProductService = {
    * @param {Object} updatedData — Object chứa thông tin Product cần cập nhật
    * @returns {Product} — Trả về thông tin sản phẩm sau khi cập nhật thành công
    */
-  updateProduct: (id, updatedData) => http.put(`/api/seller/products/${id}`, updatedData),
+  updateProduct: (id, updatedData) =>
+    http.put(`/api/seller/products/${id}`, updatedData),
 
   /**
    * 5. Xóa mềm / Ẩn sản phẩm (Icon thùng rác)
@@ -52,10 +54,19 @@ const sellerProductService = {
    * @returns {Blob/ArrayBuffer} — File CSV dạng nhị phân để Client tải về
    */
   exportInventoryReport: () => {
-    // Lưu ý: Đối với việc tải file, bạn có thể cần cấu hình responseType: 'blob' 
+    // Lưu ý: Đối với việc tải file, bạn có thể cần cấu hình responseType: 'blob'
     // tùy thuộc vào cách viết của hàm `http.get` trong dự án của bạn.
-    return http.get('/api/seller/products/export', {}, { responseType: 'blob' });
-  }
+    return http.get(
+      "/api/seller/products/export",
+      {},
+      { responseType: "blob" },
+    );
+  },
+  /**
+   * @param {Object} payload
+   */
+  registerSeller: (payload) => http.post("/api/seller/register", payload),
 };
 
 export default sellerProductService;
+
