@@ -1,4 +1,5 @@
 export const ORDER_STATUS = {
+  PENDING_PAYMENT: 'pending_payment',
   PENDING: 'pending',
   CONFIRMED: 'confirmed',
   SHIPPING: 'shipping',
@@ -8,6 +9,7 @@ export const ORDER_STATUS = {
 };
 
 export const statusConfig = {
+  [ORDER_STATUS.PENDING_PAYMENT]: { label: 'Chờ thanh toán', bgColor: 'bg-[#e0e7ff]', textColor: 'text-[#4338ca]' },
   [ORDER_STATUS.PENDING]: { label: 'Chờ xác nhận', bgColor: 'bg-[#fff5e5]', textColor: 'text-[#f59e0b]' },
   [ORDER_STATUS.CONFIRMED]: { label: 'Đã xác nhận', bgColor: 'bg-[#eff6ff]', textColor: 'text-[#3b82f6]' },
   [ORDER_STATUS.SHIPPING]: { label: 'Đang giao', bgColor: 'bg-[#eef2ff]', textColor: 'text-[#6366f1]' },

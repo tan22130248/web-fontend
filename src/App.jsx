@@ -20,7 +20,6 @@ import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
 import AdminOrderDetailPage from "./pages/admin/AdminOrderDetailPage";
 import AdminComplaintsPage from "./pages/admin/AdminComplaintsPage";
 
-
 // Order & Delivery routes
 import CartPage from "./pages/cart";
 import CheckoutPage from "./pages/checkout";
@@ -30,6 +29,7 @@ import OrderDetailPage from "./pages/orders/OrderDetailPage";
 import SellerOrdersPage from "./pages/seller/orders";
 import SellerOrderDetailPage from "./pages/seller/orders/SellerOrderDetailPage";
 import NotificationsPage from "./pages/notifications";
+import PaymentResultPage from "./pages/payment-result";
 
 // Product
 import ProductsPage from "./pages/products/ProductListPage";
@@ -39,9 +39,10 @@ import ProductDetailPage from "./pages/products/ProductDetailPage";
 import SellerLayout from "./pages/seller/components/SellerLayout";
 import SellerDashboardPage from "./pages/seller/dash/SellerDashboardPage";
 import SellerProducts from "./pages/seller/products/SellerProducts";
-import SellerProductCreate from './pages/seller/products/SellerProductCreate';
-
-import ExploreShops from "./pages/shop/ExploreShops";        
+import SellerProductCreate from "./pages/seller/products/SellerProductCreate";
+import SellerAnalytics from "./pages/seller/analytics/SellerAnalytics";
+import SelllerProfile from "./pages/seller/profile/SelllerProfile";
+import ExploreShops from "./pages/shop/ExploreShops";
 import ShopDetail from "./pages/shop/ShopDetail";
 
 export default function App() {
@@ -72,12 +73,18 @@ export default function App() {
                 </RoleBasedRoute>
               }
             >
-              <Route index element={<Navigate to="/admin/products" replace />} />
+              <Route
+                index
+                element={<Navigate to="/admin/products" replace />}
+              />
               <Route path="products" element={<AdminProductsPage />} />
               <Route path="orders" element={<AdminOrdersPage />} />
               <Route path="orders/:id" element={<AdminOrderDetailPage />} />
               <Route path="users" element={<AdminUsersPage />} />
-              <Route path="registrations" element={<AdminRegistrationsPage />} />
+              <Route
+                path="registrations"
+                element={<AdminRegistrationsPage />}
+              />
               <Route path="complaints" element={<AdminComplaintsPage />} />
             </Route>
 
@@ -107,6 +114,14 @@ export default function App() {
               }
             />
             <Route
+              path="/payment/result"
+              element={
+                <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
+                  <PaymentResultPage />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
               path="/orders"
               element={
                 <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
@@ -123,22 +138,31 @@ export default function App() {
               }
             />
 
+            {/* Products and Seller Management Routes */}
             <Route
-              path="/seller/orders"
+              path="/seller"
               element={
                 <RoleBasedRoute allowedRoles={["seller"]}>
-                  <SellerOrdersPage />
+                  <SellerLayout />
                 </RoleBasedRoute>
               }
-            />
-            <Route
-              path="/seller/orders/:id"
-              element={
-                <RoleBasedRoute allowedRoles={["seller"]}>
-                  <SellerOrderDetailPage />
-                </RoleBasedRoute>
-              }
-            />
+            >
+              <Route path="orders" element={<SellerOrdersPage />} />
+              <Route path="orders/:id" element={<SellerOrderDetailPage />} />
+              <Route
+                index
+                element={<Navigate to="/seller/dashboard" replace />}
+              />
+              <Route path="dashboard" element={<SellerDashboardPage />} />
+              <Route path="products" element={<SellerProducts />} />
+              <Route path="products/:id" element={<ProductDetailPage />} />
+              <Route path="products/create" element={<SellerProductCreate />} />
+              <Route path="analytics" element={<SellerAnalytics />} />
+              <Route path="profile" element={<SelllerProfile />} />
+            </Route>
+
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
 
             {/* Products and Seller Management Routes */}
             <Route
@@ -149,7 +173,10 @@ export default function App() {
                 </RoleBasedRoute>
               }
             >
-              <Route index element={<Navigate to="/seller/dashboard" replace />} />
+              <Route
+                index
+                element={<Navigate to="/seller/dashboard" replace />}
+              />
               <Route path="dashboard" element={<SellerDashboardPage />} />
               <Route path="products" element={<SellerProducts />} />
               <Route path="products/:id" element={<ProductDetailPage />} />
