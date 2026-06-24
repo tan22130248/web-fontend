@@ -2,17 +2,7 @@ import React from 'react';
 import OrderStatusBadge from './OrderStatusBadge';
 import { formatPrice, formatOrderDate } from '../../utils/orderUtils';
 
-export default function OrderCard({ order, onClick, actions }) {
-  // Support both old mock item fields and real API fields
-  const firstItem = order.items?.[0];
-  const itemName = firstItem ? (firstItem.productName || firstItem.name) : null;
-  const itemImage = firstItem ? (firstItem.productImageUrl || firstItem.imageUrl) : null;
-  const itemVariant = firstItem
-    ? (firstItem.variantSize || firstItem.variantColor
-        ? [firstItem.variantSize, firstItem.variantColor].filter(Boolean).join(' / ')
-        : firstItem.variant)
-    : null;
-
+export default function OrderCard({ order, onClick, actions, onReviewClick }) {
   return (
     <div 
       className="bg-white rounded-xl border border-[#ede5db] p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col gap-4"
@@ -25,31 +15,54 @@ export default function OrderCard({ order, onClick, actions }) {
         </div>
         <OrderStatusBadge status={order.status} />
       </div>
-      
-      <div className="flex gap-4 items-start">
-        {firstItem && (
-          <>
-            <div className="w-20 h-20 bg-gray-50 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0">
-              {itemImage ? (
-                 <img src={itemImage} alt={itemName} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-cream" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-medium text-gray-800 line-clamp-2">{itemName}</h3>
-              {itemVariant && (
-                <p className="text-xs text-gray-500 mt-1">Phân loại: {itemVariant}</p>
-              )}
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-sm text-gray-600">x{firstItem.quantity}</span>
-                {order.items.length > 1 && (
-                  <span className="text-xs text-gray-400">+{order.items.length - 1} sản phẩm khác</span>
+
+      <div className="flex flex-col gap-4">
+        {order.items && order.items.map((item, idx) => {
+          const name = item.productName || item.name;
+          const imageUrl = item.productImageUrl || item.imageUrl;
+          const variant = item.variantSize || item.variantColor
+            ? [item.variantSize, item.variantColor].filter(Boolean).join(' / ')
+            : item.variant;
+
+          return (
+            <div key={item.id || idx} className="flex gap-4 items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+              <div className="w-16 h-16 bg-gray-50 rounded-lg border border-gray-100 overflow-hidden flex-shrink-0">
+                {imageUrl ? (
+                  <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-cream" />
                 )}
               </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-medium text-gray-800 line-clamp-1">{name}</h3>
+                {variant && (
+                  <p className="text-xs text-gray-500 mt-0.5">Phân loại: {variant}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">Số lượng: {item.quantity}</p>
+              </div>
+              {/* Review Button if Delivered */}
+              {order.status === 'delivered' && (
+                <div className="flex-shrink-0 ml-4">
+                  {item.reviewed ? (
+                    <span className="inline-flex items-center text-xs font-bold text-gray-400 bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-lg select-none">
+                      Đã đánh giá
+                    </span>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onReviewClick(item);
+                      }}
+                      className="px-4 py-1.5 text-xs font-bold text-white bg-[#ac4218] hover:bg-[#8e3512] rounded-lg shadow-sm transition-all animate-pulse-subtle"
+                    >
+                      Đánh giá
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-          </>
-        )}
+          );
+        })}
       </div>
       
       <div className="flex justify-between items-center pt-3 border-t border-gray-50">

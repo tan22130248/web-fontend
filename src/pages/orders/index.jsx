@@ -8,6 +8,7 @@ import CancelOrderDialog from '../../components/order/CancelOrderDialog';
 import RefundRequestDialog from '../../components/order/RefundRequestDialog';
 import { ORDER_STATUS } from '../../utils/orderUtils';
 import orderService from '../../services/orderService';
+import ReviewModal from '../../components/order/ReviewModal';
 
 const TABS = [
   { key: 'all', label: 'Tất cả' },
@@ -33,6 +34,8 @@ export default function OrdersPage() {
   // Dialog states
   const [cancelDialog, setCancelDialog] = useState({ open: false, orderId: null });
   const [refundDialog, setRefundDialog] = useState({ open: false, orderId: null });
+  const [reviewProduct, setReviewProduct] = useState(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   const fetchOrders = useCallback(async (pageNum = 0) => {
     setLoading(true);
@@ -173,6 +176,10 @@ export default function OrdersPage() {
                 order={order} 
                 onClick={(id) => navigate(`/orders/${id}`)}
                 actions={getOrderActions(order)}
+                onReviewClick={(item) => {
+                  setReviewProduct(item);
+                  setReviewModalOpen(true);
+                }}
               />
             ))
           )}
@@ -216,6 +223,13 @@ export default function OrdersPage() {
         onClose={() => setRefundDialog({ open: false, orderId: null })}
         onSubmit={handleRefund}
         reasons={['Hàng không đúng mô tả', 'Hàng bị lỗi hoặc hư hỏng', 'Nhận sai sản phẩm', 'Lý do khác']}
+      />
+
+      <ReviewModal 
+        open={reviewModalOpen} 
+        onClose={() => { setReviewModalOpen(false); setReviewProduct(null); }}
+        product={reviewProduct}
+        onSuccess={() => fetchOrders(page)}
       />
     </div>
   );
