@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import Navbar from '../../components/common/Navbar';
 import productService from '../../services/productService';
 import { ArrowLeft } from 'lucide-react';
+import ProductReviewSection from '../../components/product/ProductReviewSection';
 
 const formatPrice = (val) => {
   if (val == null) return '0đ';
@@ -466,22 +467,7 @@ export default function ProductDetail() {
               </div>
             </section>
 
-            <section className="bg-white p-6 rounded-2xl border border-[#F0ECE0] shadow-sm">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-bold text-[#4A3B32]">Đánh giá & Bình luận</h2>
-                <button className="text-xs font-bold text-[#A14A24] flex items-center hover:underline">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                  Viết đánh giá
-                </button>
-              </div>
-              <div className="text-center py-10">
-                <div className="text-4xl mb-3">💬</div>
-                <p className="text-sm text-gray-400">Chưa có đánh giá nào cho sản phẩm này.</p>
-                <p className="text-xs text-gray-300 mt-1">Hãy là người đầu tiên đánh giá!</p>
-              </div>
-            </section>
+            <ProductReviewSection productId={id} />
           </div>
 
           <div className="lg:col-span-4 space-y-6">
