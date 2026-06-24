@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import shopService from "../../../services/shopService";
+import { shopService } from "../../../services/shopService";
 
 export default function SellerProfile() {
   const [isNewShop, setIsNewShop] = useState(true);
@@ -36,6 +36,34 @@ export default function SellerProfile() {
         toast.info("Hãy cập nhật thông tin để mở cửa hàng của bạn!");
       });
   }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setShopData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = () => {
+    if (isNewShop) {
+      shopService
+        .createShop(shopData)
+        .then(() => {
+          toast.success("Tạo cửa hàng thành công!");
+          setIsNewShop(false);
+        })
+        .catch((err) => {
+          toast.error(err?.response?.data?.message || "Có lỗi xảy ra khi tạo cửa hàng");
+        });
+    } else {
+      shopService
+        .updateShop(shopData)
+        .then(() => {
+          toast.success("Cập nhật thông tin thành công!");
+        })
+        .catch((err) => {
+          toast.error(err?.response?.data?.message || "Có lỗi xảy ra khi cập nhật");
+        });
+    }
+  };
 
   return (
     <div className="space-y-6">

@@ -11,6 +11,7 @@ import orderService from '../../services/orderService';
 
 const TABS = [
   { key: 'all', label: 'Tất cả' },
+  { key: ORDER_STATUS.PENDING_PAYMENT, label: 'Chờ thanh toán' },
   { key: ORDER_STATUS.PENDING, label: 'Chờ xác nhận' },
   { key: ORDER_STATUS.CONFIRMED, label: 'Đã xác nhận' },
   { key: ORDER_STATUS.SHIPPING, label: 'Đang giao' },
@@ -98,8 +99,24 @@ export default function OrdersPage() {
     }
   };
 
+  const handleRetryPayment = async (orderCode) => {
+    try {
+      const res = await orderService.retryPayment(orderCode);
+      if (res?.paymentUrl) {
+        window.location.href = res.paymentUrl;
+      } else {
+        toast.error('Không tìm thấy link thanh toán, vui lòng thử lại sau.');
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Không thể tạo lại thanh toán');
+    }
+  };
+
   const getOrderActions = (order) => {
     const actions = [];
+    if (order.status === ORDER_STATUS.PENDING_PAYMENT) {
+      actions.push({ label: 'Thanh toán lại', onClick: () => handleRetryPayment(order.orderCode), primary: true });
+    }
     if (order.status === ORDER_STATUS.PENDING || order.status === ORDER_STATUS.CONFIRMED) {
       actions.push({ label: 'Huỷ đơn', onClick: () => setCancelDialog({ open: true, orderId: order.id }) });
     }

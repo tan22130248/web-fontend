@@ -21,7 +21,8 @@ export default function CheckoutPage() {
     provinceId: '',
     districtId: '',
     wardCode: '',
-    note: ''
+    note: '',
+    paymentMethod: 'cod'
   });
   
   const [provinces, setProvinces] = useState([]);
@@ -153,6 +154,7 @@ export default function CheckoutPage() {
         toDistrictId: Number(form.districtId),
         toWardCode: form.wardCode,
         note: form.note || null,
+        paymentMethod: form.paymentMethod,
         items: items.map(i => ({
           productId: i.productId,
           variantId: i.variantId || null,
@@ -165,16 +167,18 @@ export default function CheckoutPage() {
 
       // POST /api/orders returns an array of OrderDto (split by shop)
       const orders = response;
-      const firstOrderId = Array.isArray(orders) && orders.length > 0
-        ? orders[0].id
-        : null;
+      const firstOrder = Array.isArray(orders) && orders.length > 0 ? orders[0] : null;
 
-      navigate('/order-success', {
-        state: {
-          orderId: firstOrderId,
-          orderCount: Array.isArray(orders) ? orders.length : 1,
-        },
-      });
+      if (form.paymentMethod === 'vnpay' && firstOrder?.paymentUrl) {
+        window.location.href = firstOrder.paymentUrl;
+      } else {
+        navigate('/order-success', {
+          state: {
+            orderId: firstOrder?.orderCode || firstOrder?.id,
+            orderCount: Array.isArray(orders) ? orders.length : 1,
+          },
+        });
+      }
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Không thể tạo đơn hàng. Vui lòng thử lại.');
       setSubmitting(false);
@@ -359,10 +363,33 @@ export default function CheckoutPage() {
               
               <div className="mb-8">
                 <h3 className="text-sm font-semibold text-[#646652] mb-3">Phương thức thanh toán</h3>
-                <label className="flex items-center gap-3 p-3 border border-[#ac421840] bg-[#fff8f5] rounded-xl cursor-pointer">
-                  <input type="radio" checked readOnly className="w-4 h-4 text-[#ac4218]" />
-                  <span className="text-sm font-medium text-[#3f3d2e]">Thanh toán khi nhận hàng (COD)</span>
-                </label>
+                <div className="space-y-3">
+                  <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${form.paymentMethod === 'cod' ? 'border-[#ac4218] bg-[#fff8f5]' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="cod" 
+                      checked={form.paymentMethod === 'cod'} 
+                      onChange={handleChange}
+                      className="w-4 h-4 text-[#ac4218] focus:ring-[#ac4218]" 
+                    />
+                    <span className="text-sm font-medium text-[#3f3d2e] flex-1">Thanh toán khi nhận hàng (COD)</span>
+                    <span className="text-2xl">💵</span>
+                  </label>
+                  
+                  <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${form.paymentMethod === 'vnpay' ? 'border-[#ac4218] bg-[#fff8f5]' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="paymentMethod" 
+                      value="vnpay" 
+                      checked={form.paymentMethod === 'vnpay'} 
+                      onChange={handleChange}
+                      className="w-4 h-4 text-[#ac4218] focus:ring-[#ac4218]" 
+                    />
+                    <span className="text-sm font-medium text-[#3f3d2e] flex-1">Ví VNPAY / Thẻ Ngân Hàng</span>
+                    <span className="text-2xl font-bold tracking-tight text-[#005BAA]">VN<span className="text-[#ED1B24]">PAY</span></span>
+                  </label>
+                </div>
               </div>
               
               <button 

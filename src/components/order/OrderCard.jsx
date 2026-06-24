@@ -21,7 +21,7 @@ export default function OrderCard({ order, onClick, actions }) {
       <div className="flex justify-between items-center border-b border-gray-100 pb-3">
         <div className="flex items-center gap-3">
           <span className="font-medium text-[#3f3d2e]">{order.shopName || 'Tiệm Cũ'}</span>
-          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">Mã: {order.id}</span>
+          <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">Mã: {order.orderCode || order.id}</span>
         </div>
         <OrderStatusBadge status={order.status} />
       </div>
@@ -58,6 +58,11 @@ export default function OrderCard({ order, onClick, actions }) {
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
+            {order.paymentMethod === 'vnpay' && (
+              <span className="text-[10px] font-bold text-[#005BAA] bg-[#eef6ff] border border-[#d1e5fd] px-1.5 py-0.5 rounded mr-2 uppercase tracking-wide">
+                VN<span className="text-[#ED1B24]">PAY</span>
+              </span>
+            )}
             <span className="text-xs text-gray-500 mr-2">Tổng tiền:</span>
             <span className="text-brand-600 font-bold text-base">{formatPrice(order.totalAmount)}</span>
           </div>

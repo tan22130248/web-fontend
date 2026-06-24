@@ -22,6 +22,7 @@ function buildTimelineFromHistory(history) {
   return history.map((entry) => {
     const statusLabels = {
       pending: "Đơn hàng đã đặt",
+      pending_payment: "Chờ thanh toán",
       confirmed: "Đã xác nhận",
       shipping: "Đang giao hàng",
       delivered: "Đã giao thành công",
@@ -90,6 +91,20 @@ function buildTimelineFromStatus(status) {
         active: true,
         done: false,
       },
+    ];
+  }
+
+  if (status === ORDER_STATUS.PENDING_PAYMENT) {
+    return [
+      {
+        label: "Chờ thanh toán",
+        note: "Đơn hàng đang chờ thanh toán qua VNPay",
+        active: true,
+        done: false,
+      },
+      { label: "Đã xác nhận", done: false },
+      { label: "Đang giao", done: false },
+      { label: "Đã giao", done: false },
     ];
   }
 
@@ -166,6 +181,19 @@ export default function OrderDetailPage() {
     }
   };
 
+  const handleRetryPayment = async () => {
+    try {
+      const res = await orderService.retryPayment(order.orderCode || order.id);
+      if (res?.paymentUrl) {
+        window.location.href = res.paymentUrl;
+      } else {
+        toast.error("Không tìm thấy link thanh toán, vui lòng thử lại sau.");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Không thể tạo lại thanh toán");
+    }
+  };
+
   if (loading)
     return (
       <div className="min-h-screen bg-[#f9f4ee] flex items-center justify-center text-gray-500 font-body">
@@ -191,8 +219,7 @@ export default function OrderDetailPage() {
   }
 
   // Payment display
-  const paymentLabel =
-    order.type === "cod" ? "Thanh toán khi nhận hàng" : order.type || "COD";
+  const paymentLabel = order.paymentMethod === 'vnpay' ? 'Thanh toán qua VNPAY' : (order.type === "cod" ? "Thanh toán khi nhận hàng" : order.type || "COD");
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f9f4ee] font-body text-[#3f3d2e]">
@@ -210,7 +237,7 @@ export default function OrderDetailPage() {
             <span className="text-sm font-medium text-gray-500">
               Mã đơn:{" "}
               <span className="text-gray-800 font-bold uppercase">
-                {order.id}
+                {order.orderCode || order.id}
               </span>
             </span>
             <div className="h-5 w-px bg-gray-300"></div>
@@ -287,6 +314,14 @@ export default function OrderDetailPage() {
 
             {/* Actions for mobile - hidden on desktop */}
             <div className="flex gap-3 lg:hidden">
+              {order.status === ORDER_STATUS.PENDING_PAYMENT && (
+                <button
+                  onClick={handleRetryPayment}
+                  className="flex-1 py-3 bg-gradient-to-r from-[#ac4218] to-[#fe7e4f] text-white font-bold rounded-xl shadow-sm hover:opacity-90 transition-opacity"
+                >
+                  Thanh toán lại
+                </button>
+              )}
               {(order.status === ORDER_STATUS.PENDING ||
                 order.status === ORDER_STATUS.CONFIRMED) && (
                 <button
@@ -339,6 +374,14 @@ export default function OrderDetailPage() {
 
               {/* Actions for desktop */}
               <div className="mt-8 hidden lg:block space-y-3">
+                {order.status === ORDER_STATUS.PENDING_PAYMENT && (
+                  <button
+                    onClick={handleRetryPayment}
+                    className="w-full py-3 bg-gradient-to-r from-[#ac4218] to-[#fe7e4f] text-white font-bold rounded-xl shadow-sm hover:opacity-90 transition-opacity"
+                  >
+                    Thanh toán lại
+                  </button>
+                )}
                 {(order.status === ORDER_STATUS.PENDING ||
                   order.status === ORDER_STATUS.CONFIRMED) && (
                   <button

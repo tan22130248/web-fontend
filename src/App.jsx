@@ -29,6 +29,7 @@ import OrderDetailPage from "./pages/orders/OrderDetailPage";
 import SellerOrdersPage from "./pages/seller/orders";
 import SellerOrderDetailPage from "./pages/seller/orders/SellerOrderDetailPage";
 import NotificationsPage from "./pages/notifications";
+import PaymentResultPage from "./pages/payment-result";
 
 // Product
 import ProductsPage from "./pages/products/ProductListPage";
@@ -109,6 +110,14 @@ export default function App() {
               element={
                 <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
                   <OrderSuccessPage />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="/payment/result"
+              element={
+                <RoleBasedRoute allowedRoles={["buyer", "seller"]}>
+                  <PaymentResultPage />
                 </RoleBasedRoute>
               }
             />

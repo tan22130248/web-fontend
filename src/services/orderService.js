@@ -10,6 +10,8 @@ export const orderService = {
 
   calculateFee: (data) => http.post('/api/orders/calculate-fee', data),
 
+  retryPayment: (orderCode) => http.post('/api/payments/vnpay/create', { orderCode }),
+
   cancelOrder: (id, reason) =>
     http.patch(`/api/orders/${id}/cancel`, reason ? { reason } : {}),
 
