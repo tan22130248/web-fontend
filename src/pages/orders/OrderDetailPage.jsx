@@ -8,6 +8,7 @@ import OrderTimeline from "../../components/order/OrderTimeline";
 import OrderItemRow from "../../components/order/OrderItemRow";
 import CancelOrderDialog from "../../components/order/CancelOrderDialog";
 import RefundRequestDialog from "../../components/order/RefundRequestDialog";
+import ReviewModal from "../../components/order/ReviewModal";
 import {
   ORDER_STATUS,
   formatPrice,
@@ -136,23 +137,35 @@ export default function OrderDetailPage() {
 
   const [cancelDialog, setCancelDialog] = useState(false);
   const [refundDialog, setRefundDialog] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [productToReview, setProductToReview] = useState(null);
+
+  const fetchOrder = async () => {
+    setLoading(true);
+    try {
+      const response = await orderService.getOrderById(id);
+      setOrder(response);
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Không thể tải thông tin đơn hàng",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrder = async () => {
-      setLoading(true);
-      try {
-        const response = await orderService.getOrderById(id);
-        setOrder(response);
-      } catch (error) {
-        toast.error(
-          error?.response?.data?.message || "Không thể tải thông tin đơn hàng",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchOrder();
   }, [id]);
+
+  const handleOpenReview = (item) => {
+    setProductToReview(item);
+    setReviewModalOpen(true);
+  };
+
+  const handleReviewSuccess = () => {
+    fetchOrder();
+  };
 
   const handleCancel = async (reason) => {
     try {
@@ -274,7 +287,12 @@ export default function OrderDetailPage() {
               <div className="space-y-2">
                 {order.items &&
                   order.items.map((item, idx) => (
-                    <OrderItemRow key={item.id || idx} item={item} />
+                    <OrderItemRow 
+                      key={item.id || idx} 
+                      item={item}
+                      orderStatus={order.status}
+                      onReviewClick={() => handleOpenReview(item)}
+                    />
                   ))}
               </div>
             </div>
@@ -430,6 +448,16 @@ export default function OrderDetailPage() {
           "Lý do khác",
         ]}
       />
+
+      {productToReview && (
+        <ReviewModal
+          isOpen={reviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          productId={productToReview.productId}
+          orderId={order.id}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   );
 }
