@@ -10,11 +10,11 @@ export const ORDER_STATUS = {
 
 export const statusConfig = {
   [ORDER_STATUS.PENDING_PAYMENT]: { label: 'Chờ thanh toán', bgColor: 'bg-[#e0e7ff]', textColor: 'text-[#4338ca]' },
-  [ORDER_STATUS.PENDING]: { label: 'Chờ xác nhận', bgColor: 'bg-[#fff5e5]', textColor: 'text-[#f59e0b]' },
+  [ORDER_STATUS.PENDING]: { label: 'Chờ giao', bgColor: 'bg-[#fddbc3]', textColor: 'text-[#a84b18]' },
   [ORDER_STATUS.CONFIRMED]: { label: 'Đã xác nhận', bgColor: 'bg-[#eff6ff]', textColor: 'text-[#3b82f6]' },
-  [ORDER_STATUS.SHIPPING]: { label: 'Đang giao', bgColor: 'bg-[#eef2ff]', textColor: 'text-[#6366f1]' },
-  [ORDER_STATUS.DELIVERED]: { label: 'Đã giao', bgColor: 'bg-[#f0fdf4]', textColor: 'text-[#22c55e]' },
-  [ORDER_STATUS.CANCELLED]: { label: 'Đã huỷ', bgColor: 'bg-[#fef2f2]', textColor: 'text-[#ef4444]' },
+  [ORDER_STATUS.SHIPPING]: { label: 'Đang giao', bgColor: 'bg-[#e6eed2]', textColor: 'text-[#698336]' },
+  [ORDER_STATUS.DELIVERED]: { label: 'Hoàn thành', bgColor: 'bg-[#cbf2c8]', textColor: 'text-[#3c822e]' },
+  [ORDER_STATUS.CANCELLED]: { label: 'Đã hủy', bgColor: 'bg-[#f1f1f1]', textColor: 'text-[#999999]' },
   [ORDER_STATUS.REFUNDED]: { label: 'Hoàn tiền', bgColor: 'bg-[#f3f4f6]', textColor: 'text-[#6b7280]' },
 };
 
