@@ -72,8 +72,23 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(normalizedUser));
   };
 
+  const getAuthHeader = () => {
+    if (token) {
+      return { 'Authorization': `Bearer ${token}` };
+    }
+    return {};
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, updateUser, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      login, 
+      logout, 
+      updateUser, 
+      getAuthHeader,
+      isAuthenticated: !!token 
+    }}>
       {children}
     </AuthContext.Provider>
   );
