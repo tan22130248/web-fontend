@@ -51,6 +51,8 @@ export const adminService = {
 
   getOrder: (id) => http.get(`${ADMIN_ORDERS_PATH}/${id}`),
 
+  deleteOrder: (id) => http.delete(`${ADMIN_ORDERS_PATH}/${id}`),
+
   // ── Complaints ────────────────────────────────────────────────────────
   getComplaints: (params = {}) => http.get(ADMIN_COMPLAINTS_PATH, params),
 
