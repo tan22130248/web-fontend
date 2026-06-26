@@ -164,25 +164,6 @@ export default function App() {
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
 
-            {/* Products and Seller Management Routes */}
-            <Route
-              path="/seller"
-              element={
-                <RoleBasedRoute allowedRoles={["seller"]}>
-                  <SellerLayout />
-                </RoleBasedRoute>
-              }
-            >
-              <Route
-                index
-                element={<Navigate to="/seller/dashboard" replace />}
-              />
-              <Route path="dashboard" element={<SellerDashboardPage />} />
-              <Route path="products" element={<SellerProducts />} />
-              <Route path="products/:id" element={<ProductDetailPage />} />
-              <Route path="products/create" element={<SellerProductCreate />} />
-            </Route>
-
             <Route path="/explore" element={<ExploreShops />} />
             <Route path="/shop/:shopId" element={<ShopDetail />} />
             <Route path="/products" element={<ProductsPage />} />
