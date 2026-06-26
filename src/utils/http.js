@@ -80,7 +80,7 @@ class Http {
       return Promise.reject(error);
     }
 
-    // const { config: originalRequest, response } = error;
+    const { config: originalRequest, response } = error;
     const status = response.status;
 
     // // ── 401 Unauthorized → attempt token refresh ───────────────────────
@@ -146,7 +146,9 @@ class Http {
   // ── Public HTTP methods ──────────────────────────────────────────────────
 
   async get(url, params) {
+    console.log('🌐 HTTP GET:', url, 'params:', params);
     const response = await this.instance.get(url, { params });
+    console.log('✅ HTTP Response:', url, 'data:', response.data);
     return response.data;
   }
 

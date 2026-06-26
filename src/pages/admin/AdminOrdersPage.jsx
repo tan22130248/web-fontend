@@ -367,6 +367,14 @@ export default function AdminOrdersPage() {
             })}
             <button
               type="button"
+              className="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] bg-[#eeedce] font-black text-[#686954] transition-colors hover:bg-[#e2dfc7] disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+              disabled={page === totalPages - 1}
+            >
+              ›
+            </button>
+            <button
+              type="button"
               className="flex h-[36px] w-[36px] items-center justify-center rounded-[8px] bg-[#eeedce] font-semibold text-[#686954] transition-colors hover:bg-[#e2dfc7] disabled:cursor-not-allowed disabled:opacity-50"
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
               disabled={page === totalPages - 1}
