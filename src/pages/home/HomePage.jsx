@@ -11,10 +11,12 @@ import {
   User,
   Store,
   LogOut,
+  Camera,
 } from "lucide-react";
 import productService from "../../services/productService";
 import categoryService from "../../services/categoryService";
 import Footer from "../../components/common/Footer";
+import ImageSearchModal from "../../components/common/ImageSearchModal";
 import Swal from "sweetalert2";
 
 const HERO_IMAGE =
@@ -91,6 +93,7 @@ export default function HomePage() {
   const [activeCategoryId, setActiveCategoryId] = useState("all");
 
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
   const dropdownRef = React.useRef(null);
 
   useEffect(() => {
@@ -246,6 +249,14 @@ export default function HomePage() {
               title="Tìm kiếm"
             >
               <Search size={20} strokeWidth={2.2} />
+            </button>
+            <button
+              onClick={() => setIsImageSearchOpen(true)}
+              className="hover:opacity-80 transition flex items-center justify-center"
+              aria-label="Tìm bằng ảnh"
+              title="Tìm kiếm bằng hình ảnh"
+            >
+              <Camera size={20} strokeWidth={2.2} />
             </button>
             {isAuthenticated ? (
               <>
@@ -560,6 +571,11 @@ export default function HomePage() {
       </main>
 
       <Footer />
+
+      <ImageSearchModal
+        isOpen={isImageSearchOpen}
+        onClose={() => setIsImageSearchOpen(false)}
+      />
     </div>
   );
 }

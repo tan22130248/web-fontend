@@ -34,6 +34,7 @@ import PaymentResultPage from "./pages/payment-result";
 // Product
 import ProductsPage from "./pages/products/ProductListPage";
 import ProductDetailPage from "./pages/products/ProductDetailPage";
+import ImageSearchResultsPage from "./pages/image-search/ImageSearchResultsPage";
 
 // Seller
 import SellerLayout from "./pages/seller/components/SellerLayout";
@@ -163,6 +164,7 @@ export default function App() {
 
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
+            <Route path="/image-search" element={<ImageSearchResultsPage />} />
 
             <Route path="/explore" element={<ExploreShops />} />
             <Route path="/shop/:shopId" element={<ShopDetail />} />

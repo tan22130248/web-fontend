@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { Camera } from "lucide-react";
 import Navbar from "../../components/common/Navbar";
+import ImageSearchModal from "../../components/common/ImageSearchModal";
 import categoryService from "../../services/categoryService";
 import productService from "../../services/productService";
 
@@ -64,6 +66,7 @@ export default function ProductsPage() {
   const [suggestions, setSuggestions] = useState([]);
   const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
   const searchRef = useRef(null);
+  const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
 
   useEffect(() => {
     categoryService
@@ -228,6 +231,7 @@ export default function ProductsPage() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased">
       <Navbar />
 
@@ -415,6 +419,16 @@ export default function ProductsPage() {
                 )}
               </div>
 
+              {/* Image search button */}
+              <button
+                onClick={() => setIsImageSearchOpen(true)}
+                className="flex items-center gap-1.5 bg-gradient-to-r from-[#d4711e] to-[#b14f25] text-white px-3 py-1.5 rounded text-xs font-semibold hover:from-[#c25f10] hover:to-[#963f1c] transition-all active:scale-95 shadow-sm"
+                title="Tìm kiếm bằng hình ảnh"
+              >
+                <Camera size={14} strokeWidth={2.2} />
+                <span className="hidden sm:inline">Tìm bằng ảnh</span>
+              </button>
+
               <span className="text-xs text-gray-500">Sắp xếp theo:</span>
               <select
                 value={filters.sortBy}
@@ -554,5 +568,11 @@ export default function ProductsPage() {
         </div>
       </footer>
     </div>
+
+    <ImageSearchModal
+      isOpen={isImageSearchOpen}
+      onClose={() => setIsImageSearchOpen(false)}
+    />
+    </>
   );
 }
