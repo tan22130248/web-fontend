@@ -2,9 +2,10 @@ import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, Package, ShoppingCart, User, Store, LogOut } from 'lucide-react';
+import { Bell, Package, ShoppingCart, User, Store, LogOut, Camera } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
+import ImageSearchModal from './ImageSearchModal';
 
 export default function Navbar({ onLogout, userName }) {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function Navbar({ onLogout, userName }) {
   const { user, isAuthenticated, logout } = useAuth();
 
   const [showDropdown, setShowDropdown] = React.useState(false);
+  const [isImageSearchOpen, setIsImageSearchOpen] = React.useState(false);
   const dropdownRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -65,6 +67,7 @@ export default function Navbar({ onLogout, userName }) {
   ];
 
   return (
+    <>
     <nav
       style={{
         display: 'flex',
@@ -126,6 +129,15 @@ export default function Navbar({ onLogout, userName }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        {/* Image search camera icon */}
+        <div
+          style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          onClick={() => setIsImageSearchOpen(true)}
+          title="Tìm kiếm bằng hình ảnh"
+        >
+          <Camera size={20} color="#888" strokeWidth={2} />
+        </div>
+
         {isAuthenticated ? (
           <>
             <div style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => navigate('/notifications')} title="Thông báo">
@@ -414,5 +426,7 @@ export default function Navbar({ onLogout, userName }) {
         )}
       </div>
     </nav>
+    <ImageSearchModal isOpen={isImageSearchOpen} onClose={() => setIsImageSearchOpen(false)} />
+    </>
   );
 }

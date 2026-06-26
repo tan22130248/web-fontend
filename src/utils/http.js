@@ -80,7 +80,7 @@ class Http {
       return Promise.reject(error);
     }
 
-    const { config: originalRequest, response } = error;
+    // const { config: originalRequest, response } = error;
     const status = response.status;
 
     // // ── 401 Unauthorized → attempt token refresh ───────────────────────

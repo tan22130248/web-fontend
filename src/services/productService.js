@@ -56,6 +56,24 @@ const productService = {
    * @param {Object} params — Chứa các tham số lọc gửi lên Backend
    */
   filter: (params) => http.get('/api/products/filter', params),
+
+  /**
+   * Tìm kiếm sản phẩm bằng hình ảnh
+   * POST /api/products/image-search (multipart/form-data)
+   * @param {File} file — Ảnh do người dùng tải lên
+   * @param {Object} [opts] — { topK, minSimilarity }
+   * @returns {Array<{ product: ProductDto, similarity: number, similarityPercent: number }>}
+   */
+  searchByImage: (file, opts = {}) => {
+    const { topK = 24, minSimilarity = 0.15 } = opts;
+    const formData = new FormData();
+    formData.append('file', file);
+    return http.postWithFile(
+      `/api/products/image-search?topK=${topK}&minSimilarity=${minSimilarity}`,
+      formData,
+    );
+  },
 };
+
 
 export default productService;

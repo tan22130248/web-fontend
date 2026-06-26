@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import cloudinaryService from '../../../services/cloudinaryService';
 
 export default function SellerProductForm({ product, onSave, onCancel }) {
   const [formData, setFormData] = useState({
@@ -15,6 +16,9 @@ export default function SellerProductForm({ product, onSave, onCancel }) {
 
   const primaryInputRef = useRef(null);
   const subInputRef = useRef(null);
+  const [primaryImageFile, setPrimaryImageFile] = useState(null);
+  const [subImageFiles, setSubImageFiles] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -43,20 +47,25 @@ export default function SellerProductForm({ product, onSave, onCancel }) {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
+      setPrimaryImageFile(file);
       setFormData((prev) => ({ ...prev, primaryImage: imageUrl }));
     }
+    e.target.value = '';
   };
 
   const handleSubImagesChange = (e) => {
     const files = Array.from(e.target.files);
     const maxAllowed = 5 - (formData.primaryImage ? 1 : 0) - formData.subImages.length;
 
-    const newImageUrls = files.slice(0, maxAllowed).map(file => URL.createObjectURL(file));
+    const selectedFiles = files.slice(0, maxAllowed);
+    const newImageUrls = selectedFiles.map(file => URL.createObjectURL(file));
 
     setFormData((prev) => ({
       ...prev,
       subImages: [...prev.subImages, ...newImageUrls]
     }));
+    setSubImageFiles((prev) => [...prev, ...selectedFiles]);
+    e.target.value = '';
   };
 
   const allImagesPreview = [
@@ -64,7 +73,7 @@ export default function SellerProductForm({ product, onSave, onCancel }) {
     ...formData.subImages
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.name || !formData.price || !formData.primaryImage) {
@@ -75,13 +84,23 @@ export default function SellerProductForm({ product, onSave, onCancel }) {
     const parsedPrice = typeof formData.price === 'string'
       ? parseInt(formData.price.replace(/\D/g, ''), 10)
       : formData.price;
-    const payload = {
-      ...formData,
-      price: parsedPrice,
-      stock: parseInt(formData.stock, 10)
-    };
-
-    onSave(payload);
+    setIsSubmitting(true);
+    try {
+      const primaryImage = primaryImageFile
+        ? await cloudinaryService.uploadFile(primaryImageFile, 'fashion_marketplace/products')
+        : formData.primaryImage;
+      const uploadedSubImages = subImageFiles.length
+        ? await cloudinaryService.uploadFiles(subImageFiles, 'fashion_marketplace/products')
+        : [];
+      const existingSubImages = formData.subImages.slice(0, formData.subImages.length - subImageFiles.length);
+      const subImages = [...existingSubImages, ...uploadedSubImages];
+      await onSave({ ...formData, primaryImage, subImages, imageUrl: primaryImage, images: subImages, price: parsedPrice, stock: parseInt(formData.stock, 10) });
+    } catch (error) {
+      console.error('Lỗi tải ảnh sản phẩm:', error);
+      alert(error.message || 'Không thể tải ảnh sản phẩm. Vui lòng thử lại.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -157,6 +176,11 @@ export default function SellerProductForm({ product, onSave, onCancel }) {
                         ...prev,
                         subImages: prev.subImages.filter((_, i) => i !== index)
                       }));
+                      setSubImageFiles(prev => {
+                        const firstNewImageIndex = formData.subImages.length - prev.length;
+                        if (index < firstNewImageIndex) return prev;
+                        return prev.filter((_, i) => i !== index - firstNewImageIndex);
+                      });
                     }}
                     className="absolute inset-0 bg-black/40 text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity text-xs flex items-center justify-center"
                   >
@@ -283,6 +307,7 @@ export default function SellerProductForm({ product, onSave, onCancel }) {
             <button
               type="button"
               onClick={handleSubmit}
+              disabled={isSubmitting}
               className="bg-[#C85C32] hover:bg-[#b04f29] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-sm transition-colors"
             >
               {formData.id ? 'Lưu thay đổi' : 'Đăng sản phẩm'}
