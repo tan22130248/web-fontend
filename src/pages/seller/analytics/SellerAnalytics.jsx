@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import sellerDashboardService from "../../../services/sellerDashboardService";
 import sellerReputationService from "../../../services/sellerReputationService";
+import { shopService } from "../../../services/shopService";
 
 export default function SellerAnalytics() {
   const [dashboardData, setDashboardData] = useState({
@@ -17,16 +18,26 @@ export default function SellerAnalytics() {
     currentPoints: 100,
   });
 
+  const [shopPointsData, setShopPointsData] = useState({
+    totalPoints: 0,
+    shopTotalPoints: 0,
+    history: [],
+  });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       sellerDashboardService.getSummary(),
       sellerReputationService.getSummary(),
+      shopService
+        .getMyShopPoints()
+        .catch((err) => ({ totalPoints: 0, shopTotalPoints: 0, history: [] })),
     ])
-      .then(([dashboardRes, reputationRes]) => {
+      .then(([dashboardRes, reputationRes, pointsRes]) => {
         setDashboardData(dashboardRes);
         setReputationData(reputationRes);
+        setShopPointsData(pointsRes);
       })
       .catch((err) => {
         console.error("Lỗi khi lấy dữ liệu phân tích:", err);
@@ -61,8 +72,18 @@ export default function SellerAnalytics() {
     };
   };
 
-  const rank = getRankInfo(reputationData.currentPoints);
-  const pointsToNext = rank.nextLevel - reputationData.currentPoints;
+  const currentPoints = shopPointsData.shopTotalPoints || 0;
+  const rank = getRankInfo(currentPoints);
+  const pointsToNext = rank.nextLevel - currentPoints;
+  const progressPercentage = Math.min(
+    100,
+    Math.max(0, (currentPoints / rank.nextLevel) * 100),
+  );
+
+  const circleRadius = 45;
+  const circleCircumference = 2 * Math.PI * circleRadius;
+  const strokeDashoffset =
+    circleCircumference - (progressPercentage / 100) * circleCircumference;
 
   const stats = [
     {
@@ -95,16 +116,21 @@ export default function SellerAnalytics() {
     },
   ];
 
-  // Dữ liệu giả lập lịch sử tích điểm uy tín
-  const historyLog = [
-    {
-      date: "24/10/2023",
-      event: "Hoàn thành đơn #12345",
-      points: "+10",
-      total: reputationData.currentPoints,
-      type: "plus",
-    },
-  ];
+  // Dữ liệu lịch sử tích điểm uy tín từ API
+  const historyLog = shopPointsData.history.map((log) => ({
+    date: new Date(log.createdAt).toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    event: log.reason,
+    points:
+      log.pointsEarned > 0 ? `+${log.pointsEarned}` : `${log.pointsEarned}`,
+    total: "-",
+    type: log.pointsEarned > 0 ? "plus" : "minus",
+  }));
 
   if (loading) {
     return (
@@ -124,13 +150,37 @@ export default function SellerAnalytics() {
       <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#F0ECE0] shadow-sm flex flex-col md:flex-row items-center gap-8">
         {/* Vòng tròn điểm số tiến trình (Progress Circle) */}
         <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
-          <div className="absolute inset-0 rounded-full border-[6px] border-[#FAF8F0]"></div>
-          {/* Một thanh progress giả lập xoay 45 độ - Trong thực tế cần dùng SVG stroke-dasharray */}
-          <div className="absolute inset-0 rounded-full border-[6px] border-t-[#A14A24] border-r-[#A14A24] border-b-[#FAF8F0] border-l-[#FAF8F0] rotate-45"></div>
+          <svg
+            className="absolute inset-0 w-full h-full transform -rotate-90"
+            viewBox="0 0 100 100"
+          >
+            {/* Vòng nền */}
+            <circle
+              cx="50"
+              cy="50"
+              r={circleRadius}
+              fill="transparent"
+              stroke="#FAF8F0"
+              strokeWidth="8"
+            />
+            {/* Vòng tiến trình */}
+            <circle
+              cx="50"
+              cy="50"
+              r={circleRadius}
+              fill="transparent"
+              stroke="#A14A24"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={circleCircumference}
+              strokeDashoffset={strokeDashoffset}
+              className="transition-all duration-1000 ease-out"
+            />
+          </svg>
 
           <div className="text-center z-10">
             <span className="text-2xl font-black text-[#4A3B32]">
-              {reputationData.currentPoints}
+              {currentPoints}
             </span>
             <span className="text-[10px] text-gray-400 block border-t border-gray-100 mt-0.5 pt-0.5 font-medium">
               / {rank.nextLevel} điểm
@@ -156,15 +206,6 @@ export default function SellerAnalytics() {
             nữa để lên cấp tiếp theo! Hãy tiếp tục duy trì dịch vụ tuyệt vời này
             nhé.
           </p>
-
-          <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
-            <button className="bg-[#E87745] hover:bg-[#d66534] text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors shadow-sm">
-              Xem đặc quyền Hạng Vàng
-            </button>
-            <button className="bg-[#FAF8F2] border border-[#EBE7D9] text-[#4A3B32] hover:bg-[#EDE9DA] font-bold text-xs px-4 py-2.5 rounded-xl transition-colors">
-              Cách kiếm điểm
-            </button>
-          </div>
         </div>
       </div>
 
@@ -252,7 +293,7 @@ export default function SellerAnalytics() {
                   <td className="py-4 px-6 font-medium">
                     <div className="flex items-center space-x-2">
                       <span className="text-xs">
-                        {log.type === "plus" ? "✅" : "❌"}
+                        {log.type === "plus" ? "🎁" : "⚠️"}
                       </span>
                       <span>{log.event}</span>
                     </div>
@@ -276,4 +317,3 @@ export default function SellerAnalytics() {
     </div>
   );
 }
-

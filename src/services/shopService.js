@@ -5,6 +5,8 @@ const shopService = {
 
   getMyShop: () => http.get("/api/shops/my"),
 
+  getMyShopPoints: () => http.get("/api/shops/my/points"),
+
   createShop: (shopData) => http.post("/api/shops", shopData),
 
   updateShop: (shopData) => http.put("/api/shops", shopData),

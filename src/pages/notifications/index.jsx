@@ -89,7 +89,7 @@ export default function NotificationsPage() {
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-xl border ${
                     !notif.isRead ? 'bg-brand-100 text-brand-600 border-brand-200' : 'bg-gray-100 text-gray-400 border-gray-200'
                   }`}>
-                    {notif.title.includes('thành công') ? '✅' : notif.title.includes('hủy') ? '❌' : '📦'}
+                    {notif.type === 'points' ? '⭐' : notif.title.includes('thành công') ? '✅' : notif.title.includes('hủy') ? '❌' : '📦'}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-1">
