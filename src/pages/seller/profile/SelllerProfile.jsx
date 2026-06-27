@@ -67,11 +67,6 @@ export default function SellerProfile() {
 
   return (
     <div className="space-y-6">
-      {/* Tiêu đề phụ nhỏ góc trên */}
-      <div className="text-xs text-gray-400 font-medium -mt-2">
-        Hồ sơ cửa hàng - seller
-      </div>
-
       {/* Tiêu đề chính */}
       <div>
         <h1 className="text-2xl font-black text-[#4A3B32]">Hồ sơ cửa hàng</h1>

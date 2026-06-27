@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import Navbar from '../../components/common/Navbar';
 import productService from '../../services/productService';
 import { ArrowLeft } from 'lucide-react';
 import ProductReviewSection from '../../components/product/ProductReviewSection';
@@ -172,6 +171,15 @@ export default function ProductDetail() {
     navigate('/checkout');
   };
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/products');
+  };
+
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -187,7 +195,6 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased">
         <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
-        <Navbar />
         <DetailSkeleton />
       </div>
     );
@@ -196,7 +203,6 @@ export default function ProductDetail() {
   if (error || !product) {
     return (
       <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased">
-        <Navbar />
         <div className="max-w-lg mx-auto px-4 py-24 text-center">
           <div className="text-6xl mb-6">🛍️</div>
           <h2 className="text-2xl font-bold text-[#4A3B32] mb-3">Không tìm thấy sản phẩm</h2>
@@ -218,10 +224,9 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased relative">
-      <Navbar />
 
       <button
-        onClick={() => navigate(-1)}
+        onClick={handleBack}
         className="absolute left-4 lg:left-8 top-24 z-10 flex items-center justify-center text-[#4A3B32] hover:text-[#A14A24] bg-white border border-[#EBE7D9] w-10 h-10 rounded-full shadow-md transition-all hover:scale-110 active:scale-[0.98] focus:outline-none group"
         title="Quay lại"
       >
@@ -393,7 +398,7 @@ export default function ProductDetail() {
                   </div>
                 </div>
               </div>
-              <Link to={`/products?shop=${product.shopId}`} className="text-xs font-bold text-[#A14A24] hover:underline shrink-0">
+              <Link to={`/shop/${product.shopId}`} className="text-xs font-bold text-[#A14A24] hover:underline shrink-0">
                 Xem tiệm
               </Link>
             </div>

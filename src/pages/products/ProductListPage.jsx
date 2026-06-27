@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Camera } from "lucide-react";
-import Navbar from "../../components/common/Navbar";
 import ImageSearchModal from "../../components/common/ImageSearchModal";
 import categoryService from "../../services/categoryService";
 import productService from "../../services/productService";
@@ -10,18 +9,27 @@ export default function ProductsPage() {
   const [filters, setFilters] = useState(() => {
     try {
       const saved = sessionStorage.getItem("products_filters");
-      return saved
-        ? JSON.parse(saved)
-        : {
-            categoryId: "",
-            conditionStatus: "",
-            minPrice: "",
-            maxPrice: "",
-            keyword: "",
-            sortBy: "soldCount,desc",
-            page: 0,
-            size: 9,
-          };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...parsed,
+          sortBy:
+            !parsed.sortBy || parsed.sortBy === "soldCount,desc"
+              ? "trustedLatest"
+              : parsed.sortBy,
+        };
+      }
+
+      return {
+        categoryId: "",
+        conditionStatus: "",
+        minPrice: "",
+        maxPrice: "",
+        keyword: "",
+        sortBy: "trustedLatest",
+        page: 0,
+        size: 9,
+      };
     } catch {
       return {
         categoryId: "",
@@ -29,7 +37,7 @@ export default function ProductsPage() {
         minPrice: "",
         maxPrice: "",
         keyword: "",
-        sortBy: "soldCount,desc",
+        sortBy: "trustedLatest",
         page: 0,
         size: 9,
       };
@@ -218,7 +226,7 @@ export default function ProductsPage() {
       conditionStatus: "",
       minPrice: "",
       maxPrice: "",
-      sortBy: "soldCount,desc",
+      sortBy: "trustedLatest",
       page: 0,
       size: 9,
     });
@@ -233,7 +241,6 @@ export default function ProductsPage() {
   return (
     <>
     <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased">
-      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
         <aside className="w-full lg:w-60 shrink-0">
@@ -435,6 +442,7 @@ export default function ProductsPage() {
                 onChange={handleSortChange}
                 className="bg-white border border-[#EBE7D9] rounded px-3 py-1.5 text-xs text-[#4A3B32] font-medium focus:ring-1 focus:ring-[#A14A24] outline-none cursor-pointer"
               >
+                <option value="trustedLatest">Mới từ shop uy tín</option>
                 <option value="soldCount,desc">Bán chạy nhất</option>
                 <option value="createdAt,desc">Mới nhất</option>
                 <option value="price,asc">Giá tăng dần</option>

@@ -55,15 +55,20 @@ export default function Navbar({ onLogout, userName }) {
   };
 
   const isSeller = user?.role === 'seller';
-  const isActive = (path) => location.pathname === path || location.pathname.startsWith(`${path}/`);
+  const isActive = (item) => {
+    const paths = item.activePaths || [item.to];
+    return paths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
+  };
 
   const navItems = [
     { label: 'Khám phá', to: '/home' },
-    { label: 'Cửa hàng', to: '/products' },
+    { label: 'Sản phẩm', to: '/products', activePaths: ['/products'] },
+    { label: 'Cửa hàng', to: '/explore', activePaths: ['/explore', '/shop'] },
     ...(isAuthenticated ? [
-      ...(isSeller ? [{ label: 'Kênh bán', to: '/seller/dashboard' }] : []),
+      ...(isSeller ? [{ label: 'Kênh bán', to: '/seller/dashboard', activePaths: ['/seller/dashboard', '/seller/products', '/seller/analytics', '/seller/profile'] }] : []),
       { label: 'Đơn hàng', to: isSeller ? '/seller/orders' : '/orders' },
     ] : []),
+    { label: 'Xu hướng', href: location.pathname === '/home' ? '#trending' : '/home#trending' },
   ];
 
   return (
@@ -105,27 +110,39 @@ export default function Navbar({ onLogout, userName }) {
           transform: 'translateX(-50%)',
         }}
       >
-        {navItems.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            onClick={() => {
-              if (item.to === '/products') {
-                sessionStorage.removeItem('products_filters');
-                sessionStorage.removeItem('products_price_input');
-                sessionStorage.removeItem('products_scroll_pos');
-              }
-            }}
-            style={{
-              color: isActive(item.to) ? '#d4711e' : '#666',
-              fontSize: 14,
-              fontWeight: isActive(item.to) ? 700 : 500,
-              textDecoration: 'none',
-            }}
-          >
-            {item.label}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const navStyle = {
+            color: isActive(item) ? '#d4711e' : '#666',
+            fontSize: 14,
+            fontWeight: isActive(item) ? 700 : 500,
+            textDecoration: 'none',
+          };
+
+          if (item.href) {
+            return (
+              <a key={item.href} href={item.href} style={navStyle}>
+                {item.label}
+              </a>
+            );
+          }
+
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={() => {
+                if (item.to === '/products') {
+                  sessionStorage.removeItem('products_filters');
+                  sessionStorage.removeItem('products_price_input');
+                  sessionStorage.removeItem('products_scroll_pos');
+                }
+              }}
+              style={navStyle}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
