@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import shopService from '../../services/shopService';
+import { ArrowLeft } from 'lucide-react';
 
 export default function ShopDetail() {
   const { shopId } = useParams();
@@ -66,32 +67,32 @@ export default function ShopDetail() {
   // Static sizes list (can be enhanced later with variant fetching)
   const sizes = ['S', 'M', 'L', 'XL', 'Freesize'];
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/explore');
+  };
+
   return (
     <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased flex flex-col justify-between">
-      
-      {/* 1. TOP NAVBAR (Đồng bộ với ExploreShops) */}
-      <header className="h-16 border-b border-[#EBE7D9] px-4 md:px-16 flex items-center justify-between bg-[#FCFBF4] sticky top-0 z-50">
-        <div className="text-lg font-black italic text-[#A14A24] tracking-wider">Tủ cũ chill</div>
-        
-        <nav className="hidden md:flex items-center space-x-6 text-xs font-bold text-gray-500">
-          <a href="#discover" className="hover:text-[#4A3B32]">Khám Phá</a>
-          <a href="#shops" className="text-[#A14A24] border-b-2 border-[#A14A24] pb-1">Cửa Hàng</a>
-          <a href="#trends" className="hover:text-[#4A3B32]">Xu Hướng</a>
-        </nav>
-
-        <div className="flex items-center space-x-4 text-sm text-gray-500">
-          <button className="hover:text-[#A14A24]">🔍</button>
-          <button className="hover:text-[#A14A24]">🔔</button>
-          <button className="hover:text-[#A14A24]">🛒</button>
-          <div className="w-7 h-7 rounded-full bg-orange-200 overflow-hidden cursor-pointer">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="avatar" className="w-full h-full object-cover" />
-          </div>
-        </div>
-      </header>
+      <div className="max-w-5xl w-full mx-auto px-4 pt-4">
+        <button
+          type="button"
+          onClick={handleBack}
+          aria-label="Quay lại trang trước"
+          className="inline-flex items-center gap-2 rounded-full border border-[#EBE7D9] bg-white px-4 py-2 text-xs font-bold text-[#8C3B1A] shadow-sm transition-all hover:border-[#C85C32] hover:text-[#C85C32] active:scale-[0.98]"
+        >
+          <ArrowLeft size={16} strokeWidth={2.5} />
+          Quay lại
+        </button>
+      </div>
 
       {/* Tiêu đề ẩn hỗ trợ SEO hoặc định danh cấu trúc */}
       <div className="max-w-5xl w-full mx-auto px-4 pt-4 text-xs text-gray-400 font-medium">
-        Cửa hàng Sài Gòn Retro - Danh sách sản phẩm
+        Cửa hàng {shopInfo?.shopName || 'Tiệm Cũ'} - Danh sách sản phẩm
       </div>
 
       {/* 2. MAIN CONTAINER */}

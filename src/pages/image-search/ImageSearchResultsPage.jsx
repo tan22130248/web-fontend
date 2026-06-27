@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Heart, ArrowLeft, SlidersHorizontal, Camera, Sparkles } from 'lucide-react';
-import Navbar from '../../components/common/Navbar';
 import Footer from '../../components/common/Footer';
 
 function formatPrice(value) {
@@ -70,7 +69,6 @@ export default function ImageSearchResultsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FCFBF4] font-body text-[#3f3d2e]">
-      <Navbar />
 
       {/* ── Hero Section ────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-[#fdf8f2] via-[#fef6ee] to-[#fdf0e5] border-b border-[#ede5db] overflow-hidden">

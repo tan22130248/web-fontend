@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import RoleBasedRoute from "./components/common/RoleBasedRoute";
+import MarketplaceLayout from "./components/common/MarketplaceLayout";
 
 import AuthPage from "./pages/auth/AuthPage";
 import OAuth2RedirectPage from "./pages/auth/OAuth2RedirectPage";
@@ -54,8 +55,6 @@ export default function App() {
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/oauth2/redirect" element={<OAuth2RedirectPage />} />
-
-            <Route path="/home" element={<HomePage />} />
 
             <Route
               path="/profile"
@@ -162,14 +161,14 @@ export default function App() {
               <Route path="profile" element={<SelllerProfile />} />
             </Route>
 
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route path="/image-search" element={<ImageSearchResultsPage />} />
-
-            <Route path="/explore" element={<ExploreShops />} />
-            <Route path="/shop/:shopId" element={<ShopDetail />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
+            <Route element={<MarketplaceLayout />}>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/products/:id" element={<ProductDetailPage />} />
+              <Route path="/image-search" element={<ImageSearchResultsPage />} />
+              <Route path="/explore" element={<ExploreShops />} />
+              <Route path="/shop/:shopId" element={<ShopDetail />} />
+            </Route>
 
             <Route
               path="/notifications"

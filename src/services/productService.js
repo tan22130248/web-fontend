@@ -51,6 +51,13 @@ const productService = {
   getConditions: () => http.get('/api/products/conditions'),
 
   /**
+   * Get latest products, prioritizing higher-reputation shops for equal timestamps.
+   * GET /api/products/trusted-latest?page=0&size=12
+   */
+  getTrustedLatest: (page = 0, size = 12) =>
+    http.get('/api/products/trusted-latest', { page, size }),
+
+  /**
    * Lọc tất cả sản phẩm theo bộ tiêu chí động (Category, Tình trạng, Giá) và Phân trang
    * GET /api/products/filter
    * @param {Object} params — Chứa các tham số lọc gửi lên Backend

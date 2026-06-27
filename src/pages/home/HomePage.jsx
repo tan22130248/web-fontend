@@ -2,22 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/AuthContext";
-import { useCart } from "../../context/CartContext";
-import {
-  Search,
-  Bell,
-  Package,
-  ShoppingCart,
-  User,
-  Store,
-  LogOut,
-  Camera,
-} from "lucide-react";
 import productService from "../../services/productService";
 import categoryService from "../../services/categoryService";
 import Footer from "../../components/common/Footer";
-import ImageSearchModal from "../../components/common/ImageSearchModal";
-import Swal from "sweetalert2";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1800&q=80";
@@ -86,27 +73,13 @@ function Snowfall({ count = 60 }) {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth();
-  const { itemCount } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [trustedLatestProducts, setTrustedLatestProducts] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState("all");
 
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
-  const dropdownRef = React.useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   useEffect(() => {
     if (isAuthenticated && (user?.role === "admin" || user?.role === "ADMIN")) {
@@ -114,39 +87,13 @@ export default function HomePage() {
     }
   }, [isAuthenticated, user, navigate]);
 
-  const handleLogout = () => {
-    Swal.fire({
-      title: "Đăng xuất",
-      text: "Bạn có chắc chắn muốn đăng xuất khỏi hệ thống?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Đăng xuất",
-      cancelButtonText: "Hủy",
-      background: "#fdf8f2",
-      color: "#3f3d2e",
-      buttonsStyling: false,
-      customClass: {
-        popup: "rounded-2xl border border-[#ede5db] p-6",
-        confirmButton:
-          "bg-[#d4711e] hover:bg-[#c25f10] text-white px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-[0.98] outline-none border-none mx-2 cursor-pointer",
-        cancelButton:
-          "bg-[#a89d91] hover:bg-[#96897c] text-white px-6 py-2.5 rounded-xl font-bold text-sm transition active:scale-[0.98] outline-none border-none mx-2 cursor-pointer",
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        logout();
-        toast.success("Đăng xuất thành công!");
-        navigate("/home");
-      }
-    });
-  };
-
   useEffect(() => {
     let mounted = true;
 
     const loadData = async () => {
       try {
         const categoryPromise = categoryService.getAll();
+        const trustedLatestPromise = productService.getTrustedLatest(0, 12);
         const firstProductPage = await productService.getAll(0, 48);
 
         const firstContent = normalizeList(firstProductPage);
@@ -160,8 +107,9 @@ export default function HomePage() {
           pageRequests.push(productService.getAll(page, 48));
         }
 
-        const [categoryRes, ...otherPages] = await Promise.all([
+        const [categoryRes, trustedLatestRes, ...otherPages] = await Promise.all([
           categoryPromise,
+          trustedLatestPromise,
           ...pageRequests,
         ]);
 
@@ -177,6 +125,7 @@ export default function HomePage() {
 
         setCategories(fetchedCategories);
         setProducts(fetchedProducts);
+        setTrustedLatestProducts(normalizeList(trustedLatestRes));
       } catch (error) {
         toast.error(
           error?.response?.data?.message || "Không thể tải dữ liệu trang chủ",
@@ -203,10 +152,19 @@ export default function HomePage() {
   }, [productsByCategory]);
 
   const latestProducts = useMemo(() => {
-    return [...productsByCategory]
-      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    const source =
+      activeCategoryId === "all" && trustedLatestProducts.length > 0
+        ? trustedLatestProducts
+        : productsByCategory;
+
+    return [...source]
+      .sort((a, b) => {
+        const createdDiff = new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        if (createdDiff !== 0) return createdDiff;
+        return (b.shopTotalPoints || 0) - (a.shopTotalPoints || 0);
+      })
       .slice(0, 3);
-  }, [productsByCategory]);
+  }, [activeCategoryId, productsByCategory, trustedLatestProducts]);
 
   const categoryTabs = useMemo(() => {
     const mappedTabs = categories.map((cat) => ({
@@ -220,193 +178,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#f4f4dc] font-body text-[#3f3d2e]">
       <Snowfall count={60} />
-      <header className="sticky top-0 z-30 border-b border-[#e2dfc7] bg-[#f4f4dc]/95 backdrop-blur">
-        <div className="relative mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link
-            to="/home"
-            className="text-4 font-display text-3xl font-bold italic text-[#b14f25]"
-          >
-            Tủ cũ chill
-          </Link>
-
-          <nav className="hidden items-center gap-8 text-[15px] font-medium text-[#5a5644] md:flex md:absolute md:left-1/2 md:-translate-x-1/2">
-            <Link to="/home" className="hover:text-[#b14f25]">
-              Khám phá
-            </Link>
-            <Link to="/products" className="hover:text-[#b14f25]">
-              Cửa hàng
-            </Link>
-            <a href="#trending" className="hover:text-[#b14f25]">
-              Xu hướng
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-5 text-[#b14f25]">
-            <button
-              onClick={() => navigate("/products")}
-              className="hover:opacity-80 transition flex items-center justify-center"
-              aria-label="Tìm kiếm"
-              title="Tìm kiếm"
-            >
-              <Search size={20} strokeWidth={2.2} />
-            </button>
-            <button
-              onClick={() => setIsImageSearchOpen(true)}
-              className="hover:opacity-80 transition flex items-center justify-center"
-              aria-label="Tìm bằng ảnh"
-              title="Tìm kiếm bằng hình ảnh"
-            >
-              <Camera size={20} strokeWidth={2.2} />
-            </button>
-            {isAuthenticated ? (
-              <>
-                <button
-                  onClick={() => navigate("/notifications")}
-                  className="hover:opacity-80 transition flex items-center justify-center"
-                  aria-label="Thông báo"
-                  title="Thông báo"
-                >
-                  <Bell size={20} strokeWidth={2.2} />
-                </button>
-                <button
-                  onClick={() =>
-                    navigate(
-                      user?.role === "seller" ? "/seller/orders" : "/orders",
-                    )
-                  }
-                  className="hover:opacity-80 transition flex items-center justify-center"
-                  aria-label="Đơn hàng"
-                  title="Đơn hàng"
-                >
-                  <Package size={20} strokeWidth={2.2} />
-                </button>
-                <div
-                  className="relative cursor-pointer flex items-center hover:opacity-80 transition"
-                  onClick={() => navigate("/cart")}
-                  title="Giỏ hàng"
-                >
-                  <ShoppingCart size={20} strokeWidth={2.2} />
-                  {itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2.5 bg-[#b14f25] text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1 shadow-sm animate-pulse">
-                      {itemCount}
-                    </span>
-                  )}
-                </div>
-                <div className="relative" ref={dropdownRef}>
-                  <div
-                    onClick={() => setShowDropdown(!showDropdown)}
-                    className="w-8 h-8 rounded-full bg-[#5c3d3d] overflow-hidden cursor-pointer ml-1 border border-[#b14f25]/30 hover:scale-105 hover:border-[#b14f25] transition"
-                    title={user?.username || user?.email || "Tài khoản"}
-                  >
-                    <img
-                      src="https://i.pravatar.cc/32?img=47"
-                      alt="avatar"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {showDropdown && (
-                    <div
-                      className="absolute top-[110%] right-0 bg-white rounded-xl shadow-lg border border-[#e2dfc7] py-2 min-w-[170px] z-50 flex flex-col"
-                      style={{
-                        boxShadow: "0 4px 15px rgba(122, 53, 22, 0.12)",
-                      }}
-                    >
-                      <div className="px-4 py-2 border-b border-[#f5ede4] mb-1">
-                        <p className="text-[13px] font-bold text-[#3f3d2e] m-0 overflow-hidden text-overflow-ellipsis white-space-nowrap">
-                          {user?.username || user?.email || "Người dùng"}
-                        </p>
-                        <p className="text-[10px] text-[#a89d91] m-[2px_0_0_0] uppercase font-semibold">
-                          {user?.role === "seller" ? "Người bán" : "Người mua"}
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setShowDropdown(false);
-                          navigate("/profile");
-                        }}
-                        className="px-4 py-2 bg-transparent border-none text-[#4A3B32] hover:text-[#b14f25] hover:bg-[#fcfaf2] text-left text-[13px] font-medium cursor-pointer flex items-center gap-2.5 w-full transition-colors"
-                      >
-                        <User size={16} strokeWidth={2} />
-                        <span>Trang cá nhân</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setShowDropdown(false);
-                          navigate(
-                            user?.role === "seller"
-                              ? "/seller/orders"
-                              : "/orders",
-                          );
-                        }}
-                        className="px-4 py-2 bg-transparent border-none text-[#4A3B32] hover:text-[#b14f25] hover:bg-[#fcfaf2] text-left text-[13px] font-medium cursor-pointer flex items-center gap-2.5 w-full transition-colors"
-                      >
-                        <Package size={16} strokeWidth={2} />
-                        <span>Đơn mua của tôi</span>
-                      </button>
-
-                      {user?.role === "seller" && (
-                        <button
-                          onClick={() => {
-                            setShowDropdown(false);
-                            navigate("/seller/dashboard");
-                          }}
-                          className="px-4 py-2 bg-transparent border-none text-[#4A3B32] hover:text-[#b14f25] hover:bg-[#fcfaf2] text-left text-[13px] font-medium cursor-pointer flex items-center gap-2.5 w-full transition-colors"
-                        >
-                          <Store size={16} strokeWidth={2} />
-                          <span>Kênh bán hàng</span>
-                        </button>
-                      )}
-
-                      <div className="h-[1px] bg-[#f5ede4] my-1" />
-
-                      <button
-                        onClick={() => {
-                          setShowDropdown(false);
-                          handleLogout();
-                        }}
-                        className="px-4 py-2 bg-transparent border-none text-[#c0392b] hover:bg-[#fcfaf2] text-left text-[13px] font-bold cursor-pointer flex items-center gap-2.5 w-full transition-colors"
-                      >
-                        <LogOut size={16} strokeWidth={2} />
-                        <span>Đăng xuất</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <div
-                  className="relative cursor-pointer flex items-center mr-2 hover:opacity-80 transition"
-                  onClick={() => navigate("/cart")}
-                  title="Giỏ hàng"
-                >
-                  <ShoppingCart size={20} strokeWidth={2.2} />
-                  {itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2.5 bg-[#b14f25] text-white text-[9px] font-bold min-w-[16px] h-4 rounded-full flex items-center justify-center px-1 shadow-sm animate-pulse">
-                      {itemCount}
-                    </span>
-                  )}
-                </div>
-                <Link
-                  to="/auth?mode=login"
-                  className="rounded-xl border border-[#b14f25] px-4 py-1.5 text-sm font-semibold text-[#b14f25] hover:bg-[#b14f25] hover:text-white transition"
-                >
-                  Đăng nhập
-                </Link>
-                <Link
-                  to="/auth?mode=register"
-                  className="rounded-xl bg-[#b14f25] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#963f1c] transition"
-                >
-                  Đăng ký
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
 
       <main className="mx-auto w-full max-w-7xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
         <section className="relative overflow-hidden rounded-[36px]">
@@ -571,11 +342,6 @@ export default function HomePage() {
       </main>
 
       <Footer />
-
-      <ImageSearchModal
-        isOpen={isImageSearchOpen}
-        onClose={() => setIsImageSearchOpen(false)}
-      />
     </div>
   );
 }
