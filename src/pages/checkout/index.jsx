@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { formatPrice } from '../../utils/orderUtils';
 import ghnService from '../../services/ghnService';
 import orderService from '../../services/orderService';
+import addressService from '../../services/addressService';
 
 export default function CheckoutPage() {
   const { items, clearCart } = useCart();
@@ -32,6 +33,24 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [shippingFee, setShippingFee] = useState(0);
   const [calculatingFee, setCalculatingFee] = useState(false);
+
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+
+  // Load saved addresses on mount or when user changes
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (user?.id) {
+        try {
+          const res = await addressService.getAddresses();
+          setSavedAddresses(res || []);
+        } catch (e) {
+          console.error('Không thể tải địa chỉ đã lưu:', e);
+        }
+      }
+    };
+    fetchAddresses();
+  }, [user]);
 
   // Fetch provinces on mount
   useEffect(() => {
@@ -149,6 +168,26 @@ export default function CheckoutPage() {
       
       const fullAddress = `${form.address}, ${wardName}, ${districtName}, ${provinceName}`;
 
+      // Save to database
+      if (user?.id) {
+        const newAddr = {
+          fullName: form.fullName,
+          phone: form.phone,
+          address: form.address,
+          provinceId: Number(form.provinceId),
+          districtId: Number(form.districtId),
+          wardCode: form.wardCode,
+          provinceName,
+          districtName,
+          wardName
+        };
+        try {
+          await addressService.createAddress(newAddr);
+        } catch (e) {
+          console.error('Không thể lưu địa chỉ vào DB:', e);
+        }
+      }
+
       const payload = {
         shippingAddress: fullAddress,
         toDistrictId: Number(form.districtId),
@@ -185,6 +224,20 @@ export default function CheckoutPage() {
     }
   };
 
+  const applySavedAddress = (addr) => {
+    setForm({
+      ...form,
+      fullName: addr.fullName,
+      phone: addr.phone,
+      address: addr.address,
+      provinceId: addr.provinceId,
+      districtId: addr.districtId,
+      wardCode: addr.wardCode,
+    });
+    setShowAddressModal(false);
+    toast.success('Đã áp dụng địa chỉ đã lưu');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f9f4ee] font-body text-[#3f3d2e]">
       <Navbar />
@@ -201,7 +254,18 @@ export default function CheckoutPage() {
             
             {/* Address Section */}
             <section className="bg-white rounded-2xl p-6 border border-[#ede5db] shadow-sm">
-              <h2 className="text-lg font-bold text-[#3f3d2e] mb-5 border-b border-gray-100 pb-3">Địa chỉ giao hàng</h2>
+              <div className="flex justify-between items-center mb-5 border-b border-gray-100 pb-3">
+                <h2 className="text-lg font-bold text-[#3f3d2e]">Địa chỉ giao hàng</h2>
+                {savedAddresses.length > 0 && (
+                  <button 
+                    type="button" 
+                    onClick={() => setShowAddressModal(true)}
+                    className="text-sm font-medium text-[#ac4218] hover:underline"
+                  >
+                    Chọn địa chỉ đã lưu
+                  </button>
+                )}
+              </div>
               
               <div className="space-y-4">
                 <div>
@@ -405,6 +469,36 @@ export default function CheckoutPage() {
       </main>
 
       <Footer />
+
+      {/* Address Modal */}
+      {showAddressModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-[#3f3d2e]">Địa chỉ đã lưu</h3>
+              <button 
+                type="button"
+                onClick={() => setShowAddressModal(false)} 
+                className="text-gray-500 hover:text-black font-bold text-xl"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-3">
+              {savedAddresses.map((addr, idx) => (
+                <div 
+                  key={idx} 
+                  className="border border-[#ede5db] rounded-xl p-4 cursor-pointer hover:border-[#ac4218] bg-[#fafafa] hover:bg-[#fff8f5] transition-colors"
+                  onClick={() => applySavedAddress(addr)}
+                >
+                  <p className="font-semibold text-[#3f3d2e]">{addr.fullName} - {addr.phone}</p>
+                  <p className="text-sm text-gray-600 mt-1">{addr.address}, {addr.wardName}, {addr.districtName}, {addr.provinceName}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
