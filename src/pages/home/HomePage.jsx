@@ -218,12 +218,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        <div className="mt-20 mb-6 flex flex-wrap items-center justify-center gap-2 py-2">
+        <div className="mt-20 mb-6 flex items-center justify-center gap-1.5 py-2">
           {categoryTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveCategoryId(tab.id)}
-              className={`inline-flex items-center rounded-2xl px-5 py-2.5 text-[15px] font-semibold transition ${
+              className={`inline-flex items-center whitespace-nowrap rounded-2xl px-3.5 py-2 text-[13px] font-semibold transition ${
                 activeCategoryId === tab.id
                   ? "bg-white text-[#be4e20] shadow-sm"
                   : "text-[#5e5a49] hover:bg-white/70"

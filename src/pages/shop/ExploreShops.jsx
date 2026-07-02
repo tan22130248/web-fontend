@@ -101,6 +101,53 @@ export default function ExploreShops() {
   };
   const weeklyTargetId = weeklyDisplayShop.id;
 
+  const resultsSection = (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-black text-[#4A3B32]">
+          {hasSearchQuery ? 'Kết quả tìm kiếm' : 'Tất cả cửa hàng'}
+        </h3>
+        <span className="text-[11px] font-semibold text-gray-400">
+          {isLoadingDisplay ? 'Đang tải...' : displayedShops.length + ' shop'}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {displayedShops.length > 0 ? displayedShops.map((shop) => (
+          <button
+            key={shop.id || shop.name}
+            type="button"
+            onClick={() => navigate('/shop/' + shop.id)}
+            className="bg-white p-4 rounded-2xl border border-[#F0ECE0] shadow-sm flex items-center justify-between hover:border-[#C85C32] transition-colors cursor-pointer text-left"
+          >
+            <div className="flex items-center space-x-3 min-w-0">
+              <img
+                src={shop.imageUrl || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=120&auto=format&fit=crop&q=80'}
+                alt={shop.name || 'Shop'}
+                className="h-10 w-10 rounded-full object-cover border border-[#EBE7D9] shrink-0"
+              />
+              <div className="min-w-0">
+                <h4 className="font-bold text-xs text-[#4A3B32] truncate">{shop.name}</h4>
+                <p className="text-[10px] text-gray-400 mt-0.5 truncate">{shop.category || shop.tier || 'Shop uy tín'}</p>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-[10px] font-black text-amber-500">★ {Number(shop.rating || 5).toFixed(1)}</div>
+              {shop.badge && <span className="text-[8px] font-bold text-gray-400 border border-gray-200 px-1 py-0.5 rounded uppercase tracking-tight block mt-1">{shop.badge}</span>}
+            </div>
+          </button>
+        )) : (
+          <div className="col-span-3 rounded-2xl border border-dashed border-[#EBE7D9] bg-white py-8 text-center text-sm text-gray-400">
+            {isLoadingDisplay
+              ? 'Đang tải cửa hàng...'
+              : hasSearchQuery
+                ? 'Không tìm thấy shop phù hợp.'
+                : 'Chưa có cửa hàng nào.'}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+
   return (
     <div className="min-h-screen bg-[#FCFBF4] text-[#4A3B32] font-sans antialiased flex flex-col justify-between">
 
@@ -137,7 +184,11 @@ export default function ExploreShops() {
           </div>
         </div>
 
+        {/* KẾT QUẢ TÌM KIẾM (hiển thị lên đầu khi đang tìm) */}
+        {hasSearchQuery && resultsSection}
 
+        {!hasSearchQuery && (
+        <>
         {/* BOX LỚN: SHOP CỦA TUẦN (BANNER HIGHLIGHT) */}
         <div className="bg-gradient-to-r from-[#FFF6EC] to-[#FFEAD1] border border-[#F5E2CD] p-6 sm:p-8 rounded-3xl flex flex-col sm:flex-row items-center gap-6 shadow-sm">
           <img 
@@ -243,50 +294,9 @@ export default function ExploreShops() {
           </div>
         </div>
 
-        <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-black text-[#4A3B32]">
-                {hasSearchQuery ? 'Kết quả tìm kiếm' : 'Tất cả cửa hàng'}
-              </h3>
-              <span className="text-[11px] font-semibold text-gray-400">
-                {isLoadingDisplay ? 'Đang tải...' : displayedShops.length + ' shop'}
-              </span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {displayedShops.length > 0 ? displayedShops.map((shop) => (
-                <button
-                  key={shop.id || shop.name}
-                  type="button"
-                  onClick={() => navigate('/shop/' + shop.id)}
-                  className="bg-white p-4 rounded-2xl border border-[#F0ECE0] shadow-sm flex items-center justify-between hover:border-[#C85C32] transition-colors cursor-pointer text-left"
-                >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <img
-                      src={shop.imageUrl || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=120&auto=format&fit=crop&q=80'}
-                      alt={shop.name || 'Shop'}
-                      className="h-10 w-10 rounded-full object-cover border border-[#EBE7D9] shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-xs text-[#4A3B32] truncate">{shop.name}</h4>
-                      <p className="text-[10px] text-gray-400 mt-0.5 truncate">{shop.category || shop.tier || 'Shop uy tín'}</p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-[10px] font-black text-amber-500">★ {Number(shop.rating || 5).toFixed(1)}</div>
-                    {shop.badge && <span className="text-[8px] font-bold text-gray-400 border border-gray-200 px-1 py-0.5 rounded uppercase tracking-tight block mt-1">{shop.badge}</span>}
-                  </div>
-                </button>
-              )) : (
-                <div className="col-span-3 rounded-2xl border border-dashed border-[#EBE7D9] bg-white py-8 text-center text-sm text-gray-400">
-                  {isLoadingDisplay
-                    ? 'Đang tải cửa hàng...'
-                    : hasSearchQuery
-                      ? 'Không tìm thấy shop phù hợp.'
-                      : 'Chưa có cửa hàng nào.'}
-                </div>
-              )}
-            </div>
-          </section>
+        {resultsSection}
+        </>
+        )}
 
       </main>
 
